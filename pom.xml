@@ -14,6 +14,12 @@
         <module>documents-data</module>
     </modules>
 
-
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub dimka9910 Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/dimka9910/digital-design-documents</url>
+        </repository>
+    </distributionManagement>
 
 </project>
