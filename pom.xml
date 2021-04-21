@@ -13,6 +13,7 @@
         <module>documents-dto</module>
         <module>documents-data</module>
         <module>documents-dao</module>
+        <module>documents-jdbc</module>
     </modules>
 
     <dependencyManagement>
