@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS CATALOGUE
 (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     name         TEXT NOT NULL,
-    type_of_file INTEGER CHECK ( type_of_file = 1) default 1,
+    type_of_file INTEGER CHECK ( type_of_file = 0) default 0,
     parent_id    INTEGER                           default (1),
     FOREIGN KEY (parent_id)
         REFERENCES CATALOGUE (id)
@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS CATALOGUE
         ON UPDATE NO ACTION,
     UNIQUE (name, parent_id)
 );
+
 
 -- -- DROP TABLE CATALOGUE;
 --  INSERT INTO CATALOGUE (NAME)
@@ -73,7 +74,7 @@ CREATE TABLE IF NOT EXISTS DOCUMENT
 (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,
     name             TEXT    NOT NULL,
-    type_of_file     INTEGER CHECK ( type_of_file = 2 ) default 2,
+    type_of_file     INTEGER CHECK ( type_of_file = 1 ) default 1,
     priority         INTEGER NOT NULL,
     document_type_id INTEGER not null,
     created_time DATETIME not null,
