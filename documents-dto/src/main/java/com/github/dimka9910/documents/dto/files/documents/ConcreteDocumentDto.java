@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.Set;
 
 @Data
@@ -12,5 +13,8 @@ public class ConcreteDocumentDto {
     private Long id;
     private String name;
     private String description;
-    private Set<FilePathDto> data;
+    private Long version;
+    private Timestamp modified_time;
+    private Long parent_id;
+    private Set<Long> data;
 }

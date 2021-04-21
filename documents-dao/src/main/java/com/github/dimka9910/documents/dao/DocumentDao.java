@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface DocumentDao extends AbstractDao {
     List<DocumentDto> getAllDocuments();
+
 }

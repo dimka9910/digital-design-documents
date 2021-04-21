@@ -21,12 +21,14 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
         Long id = (long) catalogueResult.getInt("id");
         String name = catalogueResult.getString("name");
         Long parent_id = catalogueResult.getLong("parent_id");
+        Timestamp created_time = catalogueResult.getTimestamp("created_time");
         TypeOfFileEnum type = TypeOfFileEnum.values()[catalogueResult.getInt("type_of_file")];
         return CatalogueDto.builder()
                 .id(id)
                 .parent_id(parent_id)
                 .name(name)
                 .typeOfFile(type)
+                .created_time(created_time)
                 .build();
     }
 
@@ -140,6 +142,14 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
 
     @Override
     public CatalogueDto modifyCatalogue(CatalogueDto catalogueDto) {
-        return null;
+        String stringQuery = "UPDATE CATALOGUE SET name = ? WHERE id = ?";
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+            statement.setString(1, catalogueDto.getName());
+            statement.setLong(2, catalogueDto.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return catalogueDto;
     }
 }

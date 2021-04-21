@@ -40,8 +40,14 @@ public class testLogic {
         System.out.println(documentDao.getAllDocuments());
         System.out.println();
 
-        catalogueDao.addCatalogue(CatalogueDto.builder().name("new").build(), catalogueDao.getRootCatalogue());
-        catalogueDao.getAllChildren(catalogueDao.getRootCatalogue()).forEach(System.out::println);
 
+
+        //catalogueDao.addCatalogue(CatalogueDto.builder().name("new2").build(), catalogueDao.getCatalogueById(1));
+        //catalogueDao.getAllChildren(catalogueDao.getCatalogueById(1L)).forEach(System.out::println);
+        System.out.println(catalogueDao.getCatalogueById(2L));
+        CatalogueDto catalogueDto = catalogueDao.getCatalogueById(2L);
+        catalogueDto.setName("ccc2");
+        catalogueDao.modifyCatalogue(catalogueDto);
+        System.out.println(catalogueDao.getCatalogueById(2L));
     }
 }

@@ -25,7 +25,12 @@ CREATE TABLE IF NOT EXISTS USER
 CREATE TABLE IF NOT EXISTS FILE_PATH
 (
     id   INTEGER PRIMARY KEY AUTOINCREMENT,
-    filepath TEXT NOT NULL
+    filepath TEXT NOT NULL,
+    parent_id   INTEGER NOT NULL,
+    FOREIGN KEY (parent_id)
+        REFERENCES CONCRETE_DOCUMENT (id)
+        ON DELETE CASCADE
+        ON UPDATE NO ACTION
 );
 
 ------------------------------------------------------------------------------------
@@ -51,6 +56,7 @@ CREATE TABLE IF NOT EXISTS CATALOGUE
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     name         TEXT NOT NULL,
     type_of_file INTEGER CHECK ( type_of_file = 0) default 0,
+    created_time DATETIME not null,
     parent_id    INTEGER                           default (1),
     FOREIGN KEY (parent_id)
         REFERENCES CATALOGUE (id)
