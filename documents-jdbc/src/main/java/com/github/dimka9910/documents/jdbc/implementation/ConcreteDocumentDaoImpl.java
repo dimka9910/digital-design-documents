@@ -40,9 +40,6 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
                 "VALUES (?,?,?,?,?)";
 
         FilePathDaoImpl filePathDao = new FilePathDaoImpl();
-        if (concreteDocumentDto.getData() != null)
-            concreteDocumentDto.getData().forEach(v -> filePathDao.addNewFilePathOfConcreteDocument(v, concreteDocumentDto));
-
         try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
             statement.setString(1, concreteDocumentDto.getName());
             statement.setString(2, concreteDocumentDto.getDescription());
@@ -50,6 +47,14 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
             statement.setTimestamp(4, getCurrentTime());
             statement.setLong(5, documentDto.getId());
             statement.executeUpdate();
+            ResultSet rs = statement.getGeneratedKeys();
+            if (rs.next()) {
+                Long id = rs.getLong(1);
+                concreteDocumentDto.setId(id);
+                if (concreteDocumentDto.getData() != null)
+                    concreteDocumentDto.getData().forEach(v -> filePathDao.addNewFilePathOfConcreteDocument(v, concreteDocumentDto));
+                return concreteDocumentDto;
+            }
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -81,7 +86,7 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
     public List<ConcreteDocumentDto> getAllVersions(DocumentDto documentDto) {
         String stringQuery = "SELECT C.id as id, C.name as name, description, version, modified_time, c.parent_id as parent_id\n" +
                 "FROM DOCUMENT JOIN CONCRETE_DOCUMENT C on DOCUMENT.id = C.parent_id\n" +
-                "WHERE DOCUMENT.parent_id = " + documentDto.getId() +
+                "WHERE C.parent_id = " + documentDto.getId() +
                 " ORDER BY version DESC";
         try {
             return getAll(stringQuery, cn);

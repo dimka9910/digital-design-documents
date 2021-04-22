@@ -7,7 +7,6 @@ import com.github.dimka9910.documents.dto.files.FileAbstractDto;
 import com.github.dimka9910.documents.dto.files.TypeOfFileEnum;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
-import com.github.dimka9910.documents.service.DaoFactory;
 
 import java.util.List;
 
@@ -42,6 +41,10 @@ public class CatalogueService {
     public void deleteCatalogueById(Long id){
         if (id != catalogueDao.getRootCatalogue().getId())
             catalogueDao.deleteCatalogue(catalogueDao.getCatalogueById(id));
+    }
+
+    public CatalogueDto createCatalogue(CatalogueDto children, Long parent_id){
+        return catalogueDao.addCatalogue(children, getCatalogueById(parent_id));
     }
 
     public CatalogueDto modifyCatalogue(Long id, String name){

@@ -13,18 +13,6 @@ public class MainTestClass {
         CatalogueService catalogueService = new CatalogueService();
         DocumentService documentService = new DocumentService();
 
-        System.out.println(catalogueService.getCatalogueById(null));
-
-        System.out.println();
-        catalogueService.getInnerCataloguesAndDocuments(null)
-                .forEach(System.out::println);
-
-        System.out.println();
-
-        System.out.println(catalogueService.getCatalogueById(4L));
-        catalogueService.modifyCatalogue(4L, "modc3");
-        System.out.println(catalogueService.getCatalogueById(4L));
-        catalogueService.modifyCatalogue(4L, "c3");
 
         System.out.println();
         System.out.println(documentService.openDocumentById(1L));

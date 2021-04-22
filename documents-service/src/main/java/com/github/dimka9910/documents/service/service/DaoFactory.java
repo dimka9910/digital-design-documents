@@ -1,8 +1,7 @@
-package com.github.dimka9910.documents.service;
+package com.github.dimka9910.documents.service.service;
 
 import com.github.dimka9910.documents.dao.*;
 import com.github.dimka9910.documents.jdbc.implementation.*;
-import lombok.Data;
 import lombok.Getter;
 
 

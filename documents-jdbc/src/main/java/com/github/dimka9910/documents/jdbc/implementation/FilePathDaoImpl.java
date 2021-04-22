@@ -59,7 +59,6 @@ public class FilePathDaoImpl implements FilePathDao, BasicRequests {
             ResultSet rs = preparedStatement1.getGeneratedKeys();
             if (rs.next()) {
                 Long id = rs.getLong(1);
-                System.out.println(id);
                 preparedStatement2.setLong(1, parent.getId());
                 preparedStatement2.setLong(2, id);
                 preparedStatement2.executeUpdate();

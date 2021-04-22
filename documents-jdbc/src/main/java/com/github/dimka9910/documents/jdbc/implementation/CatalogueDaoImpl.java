@@ -118,11 +118,12 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
             ResultSet rs = preparedStatement.getGeneratedKeys();
             if (rs.next()) {
                 Long id = rs.getLong(1);
-                System.out.println(id);
                 preparedStatement2.setLong(1, parent.getId());
                 preparedStatement2.setLong(2, id);
                 preparedStatement2.executeUpdate();
                 //cn.commit();
+                catalogueDto.setId(id);
+                return catalogueDto;
             } else {
                 //cn.rollback();
             }

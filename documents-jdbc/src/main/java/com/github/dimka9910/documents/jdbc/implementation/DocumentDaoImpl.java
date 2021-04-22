@@ -60,7 +60,6 @@ public class DocumentDaoImpl implements DocumentDao, BasicRequests {
             ResultSet rs = preparedStatement.getGeneratedKeys();
             if (rs.next()) {
                 Long id = rs.getLong(1);
-                System.out.println(id);
                 preparedStatement2.setLong(1, catalogueDto.getId());
                 preparedStatement2.setLong(2, id);
                 preparedStatement2.executeUpdate();

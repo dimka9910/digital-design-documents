@@ -20,35 +20,35 @@ public class testLogic {
 
     public static void main(String[] args) {
 
-//        UserDto user = UserDto.builder().login("l1").password("p2").role(UserRolesEnum.USER).build();
-//        userDaoImpl.addNewUser(user);
-
-        UserDaoImpl userDaoImpl = new UserDaoImpl();
-        userDaoImpl.getAllUsers().forEach(System.out::println);
-        System.out.println(userDaoImpl.getCurrentUser());
-
-        DocumentTypeDaoImpl documentTypeDaoImpl = new DocumentTypeDaoImpl();
-//        documentTypeDaoImpl.addNewDocumentType(DocumentTypeDto.builder().name("document").build());
-        System.out.println(documentTypeDaoImpl.getAllDocumentTypes());
-        System.out.println(documentTypeDaoImpl.getDocumentTypeByType("document"));
-
-        CatalogueDaoImpl catalogueDao = new CatalogueDaoImpl();
-        System.out.println(catalogueDao.getRootCatalogue());
-        System.out.println(catalogueDao.getAllCatalogues());
-        System.out.println(catalogueDao.getCatalogueById(1L));
-
-        DocumentDaoImpl documentDao = new DocumentDaoImpl();
-        System.out.println(documentDao.getAllDocuments());
-        System.out.println();
-
-
-
-        //catalogueDao.addCatalogue(CatalogueDto.builder().name("new2").build(), catalogueDao.getCatalogueById(1));
-        //catalogueDao.getAllChildren(catalogueDao.getCatalogueById(1L)).forEach(System.out::println);
-        System.out.println(catalogueDao.getCatalogueById(2L));
-        CatalogueDto catalogueDto = catalogueDao.getCatalogueById(2L);
-        catalogueDto.setName("ccc2");
-        catalogueDao.modifyCatalogue(catalogueDto);
-        System.out.println(catalogueDao.getCatalogueById(2L));
+////        UserDto user = UserDto.builder().login("l1").password("p2").role(UserRolesEnum.USER).build();
+////        userDaoImpl.addNewUser(user);
+//
+//        UserDaoImpl userDaoImpl = new UserDaoImpl();
+//        userDaoImpl.getAllUsers().forEach(System.out::println);
+//        System.out.println(userDaoImpl.getCurrentUser());
+//
+//        DocumentTypeDaoImpl documentTypeDaoImpl = new DocumentTypeDaoImpl();
+////        documentTypeDaoImpl.addNewDocumentType(DocumentTypeDto.builder().name("document").build());
+//        System.out.println(documentTypeDaoImpl.getAllDocumentTypes());
+//        System.out.println(documentTypeDaoImpl.getDocumentTypeByType("document"));
+//
+//        CatalogueDaoImpl catalogueDao = new CatalogueDaoImpl();
+//        System.out.println(catalogueDao.getRootCatalogue());
+//        System.out.println(catalogueDao.getAllCatalogues());
+//        System.out.println(catalogueDao.getCatalogueById(1L));
+//
+//        DocumentDaoImpl documentDao = new DocumentDaoImpl();
+//        System.out.println(documentDao.getAllDocuments());
+//        System.out.println();
+//
+//
+//
+//        //catalogueDao.addCatalogue(CatalogueDto.builder().name("new2").build(), catalogueDao.getCatalogueById(1));
+//        //catalogueDao.getAllChildren(catalogueDao.getCatalogueById(1L)).forEach(System.out::println);
+//        System.out.println(catalogueDao.getCatalogueById(2L));
+//        CatalogueDto catalogueDto = catalogueDao.getCatalogueById(2L);
+//        catalogueDto.setName("ccc2");
+//        catalogueDao.modifyCatalogue(catalogueDto);
+//        System.out.println(catalogueDao.getCatalogueById(2L));
     }
 }

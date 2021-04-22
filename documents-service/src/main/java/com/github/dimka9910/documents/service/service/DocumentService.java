@@ -5,7 +5,6 @@ import com.github.dimka9910.documents.dao.DocumentDao;
 import com.github.dimka9910.documents.dao.DocumentTypeDao;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.*;
-import com.github.dimka9910.documents.service.DaoFactory;
 
 import java.util.List;
 
@@ -20,6 +19,10 @@ public class DocumentService {
 
     public ConcreteDocumentDto openDocumentById(Long id){
         return concreteDocumentDao.getLastVersion(documentDao.getDocumentById(id));
+    }
+
+    public List<ConcreteDocumentDto> getAllVersionsById(Long id){
+        return concreteDocumentDao.getAllVersions(documentDao.getDocumentById(id));
     }
 
     public ConcreteDocumentDto saveNewDocument(String name,
@@ -59,5 +62,9 @@ public class DocumentService {
 
     public List<DocumentTypeDto> getAllDocumentTypes(){
         return documentTypeDao.getAllDocumentTypes();
+    }
+
+    public void deleteDocumentById(Long id){
+        documentDao.deleteDocument(documentDao.getDocumentById(id));
     }
 }
