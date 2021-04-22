@@ -14,6 +14,7 @@
         <module>documents-data</module>
         <module>documents-dao</module>
         <module>documents-jdbc</module>
+        <module>documents-service</module>
     </modules>
 
     <properties>

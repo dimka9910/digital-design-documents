@@ -8,4 +8,5 @@ import lombok.Data;
 public class FilePathDto {
     private Long id;
     private String path;
+    private Long parent_id;
 }

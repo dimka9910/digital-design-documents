@@ -1,6 +1,7 @@
 package com.github.dimka9910.documents.jdbc.implementation;
 
 import com.github.dimka9910.documents.dao.DocumentTypeDao;
+import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentTypeDto;
 import com.github.dimka9910.documents.jdbc.DbConnection;
 import lombok.extern.slf4j.Slf4j;
@@ -62,5 +63,16 @@ public class DocumentTypeDaoImpl implements DocumentTypeDao, BasicRequests {
             log.error(e.getMessage());
         }
         return DocumentTypeDto.builder().build();
+    }
+
+    @Override
+    public void deleteDocumentType(DocumentTypeDto documentTypeDto) {
+        String stringQuery = "DELETE FROM DOCUMENT_TYPE WHERE id = ?";
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+            statement.setLong(1, documentTypeDto.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
     }
 }

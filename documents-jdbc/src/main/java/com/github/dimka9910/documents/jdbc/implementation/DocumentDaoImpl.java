@@ -3,6 +3,7 @@ package com.github.dimka9910.documents.jdbc.implementation;
 import com.github.dimka9910.documents.dao.DocumentDao;
 import com.github.dimka9910.documents.dto.files.TypeOfFileEnum;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
+import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.PriorityEnum;
 import com.github.dimka9910.documents.jdbc.DbConnection;
@@ -38,6 +39,50 @@ public class DocumentDaoImpl implements DocumentDao, BasicRequests {
                 .build();
     }
 
+
+    @Override
+    public DocumentDto addNewDocument(DocumentDto documentDto, CatalogueDto catalogueDto) {
+        String insert1 = "INSERT INTO DOCUMENT (name, priority, document_type_id, created_time, parent_id) " +
+                "VALUES (?,?,?,?,?)";
+        String insert2 = "INSERT INTO CATALOGUE_AND_DOCUMENT (CATALOGUE_id, DOCUMENT_id) VALUES (?,?)";
+        try (PreparedStatement preparedStatement = cn.prepareStatement(insert1);
+             PreparedStatement preparedStatement2 = cn.prepareStatement(insert2)) {
+            //cn.setAutoCommit(false);
+            //Savepoint savepoint = cn.setSavepoint();
+
+            preparedStatement.setString(1, documentDto.getName());
+            preparedStatement.setInt(2, documentDto.getPriority().ordinal());
+            preparedStatement.setLong(3, documentDto.getDocumentType());
+            preparedStatement.setTimestamp(4, getCurrentTime());
+            preparedStatement.setLong(5, catalogueDto.getId());
+
+            preparedStatement.executeUpdate();
+            ResultSet rs = preparedStatement.getGeneratedKeys();
+            if (rs.next()) {
+                Long id = rs.getLong(1);
+                preparedStatement2.setLong(1, catalogueDto.getId());
+                preparedStatement2.setLong(2, id);
+                preparedStatement2.executeUpdate();
+                //cn.commit();
+                return getDocumentById(id);
+            } else {
+                //cn.rollback();
+            }
+            //cn.setAutoCommit(true);
+        } catch (SQLException e) {
+//            if (cn != null) {
+//                try {
+//                    cn.rollback();
+//                    cn.setAutoCommit(true);
+//                } catch (SQLException e1){
+//                    log.error(e1.getMessage());
+//                }
+//            }
+            log.error(e.getMessage());
+        }
+        return null;
+    }
+
     @Override
     public List<DocumentDto> getAllDocuments() {
         String stringQuery = "SELECT * FROM DOCUMENT";
@@ -48,5 +93,32 @@ public class DocumentDaoImpl implements DocumentDao, BasicRequests {
             log.error(e.getMessage());
         }
         return list;
+    }
+
+    @Override
+    public DocumentDto getDocumentById(Long id) {
+        String stringQuery = "SELECT * FROM DOCUMENT WHERE id = ?";
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+            statement.setLong(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return parser(resultSet);
+                }
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return DocumentDto.builder().build();
+    }
+
+    @Override
+    public void deleteDocument(DocumentDto documentDto) {
+        String stringQuery = "DELETE FROM DOCUMENT WHERE id = ?";
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+            statement.setLong(1, documentDto.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
     }
 }

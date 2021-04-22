@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
+import java.sql.Timestamp;
 import java.util.Set;
 
 @Data
@@ -15,10 +16,11 @@ public class CatalogueDto extends FileAbstractDto{
     private Set<FileAbstractDto> innerFiles;
 
     @Builder
-    public CatalogueDto(Long id, Long parent_id, Set<UserDto> readWritePermissionedUsers, Set<UserDto> readPermissionedUsers, String name, TypeOfFileEnum typeOfFile, Set<FileAbstractDto> innerFiles) {
-        super(id, parent_id, readWritePermissionedUsers, readPermissionedUsers, name, typeOfFile);
+    public CatalogueDto(Long id, Long parent_id, Timestamp created_time, Set<UserDto> readWritePermissionedUsers, Set<UserDto> readPermissionedUsers, String name, TypeOfFileEnum typeOfFile, Set<FileAbstractDto> innerFiles) {
+        super(id, parent_id, created_time, readWritePermissionedUsers, readPermissionedUsers, name, typeOfFile);
         this.innerFiles = innerFiles;
     }
+
 
     @Override
     public String toString() {
@@ -26,6 +28,7 @@ public class CatalogueDto extends FileAbstractDto{
                 "innerFiles=" + innerFiles +
                 ", id=" + id +
                 ", parent_id=" + parent_id +
+                ", created_time=" + created_time +
                 ", readWritePermissionedUsers=" + readWritePermissionedUsers +
                 ", readPermissionedUsers=" + readPermissionedUsers +
                 ", name='" + name + '\'' +
