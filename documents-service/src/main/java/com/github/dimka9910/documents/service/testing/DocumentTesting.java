@@ -54,8 +54,8 @@ public class DocumentTesting {
 
 
     public static void main(String[] args) {
-//        getAllTypes();
-//        CatalogueTesting.inner(4L);
+        getAllTypes();
+        CatalogueTesting.inner(4L);
         addNewDocument();
 
     }

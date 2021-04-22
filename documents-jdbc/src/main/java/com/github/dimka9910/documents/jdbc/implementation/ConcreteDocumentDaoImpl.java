@@ -64,21 +64,18 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
     @Override
     public ConcreteDocumentDto getLastVersion(DocumentDto documentDto) {
 
-        String stringQuery = "SELECT C.id as id, C.name as name, description, version, modified_time, c.parent_id as parent_id\n" +
-                "FROM DOCUMENT JOIN CONCRETE_DOCUMENT C on DOCUMENT.id = C.parent_id\n" +
-                "WHERE C.parent_id = ?\n" +
+        String stringQuery = "SELECT C.id as id, C.name as name, description, version, modified_time, c.parent_id as parent_id " +
+                "FROM DOCUMENT JOIN CONCRETE_DOCUMENT C on DOCUMENT.id = C.parent_id " +
+                "WHERE C.parent_id = ? " +
                 "ORDER BY version DESC";
 
-        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
-            statement.setLong(1, documentDto.getId());
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return parser(resultSet);
-                }
-            }
-        } catch (SQLException e) {
-            log.error(e.getMessage());
+        //ПОМЕНЯТЬ. В НОРМ БАЗЕ НЕТ ДОКОВ БЕЗ ДЕТЕЙ
+        try {
+            return (ConcreteDocumentDto) getOne(stringQuery, cn, documentDto.getId());
+        } catch (Exception ignored) {
+
         }
+
         return ConcreteDocumentDto.builder().build();
     }
 
@@ -89,7 +86,7 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
                 "WHERE C.parent_id = " + documentDto.getId() +
                 " ORDER BY version DESC";
         try {
-            return getAll(stringQuery, cn);
+            return getList(stringQuery, cn);
         } catch (SQLException exception) {
             log.error(exception.getMessage());
         }

@@ -44,12 +44,7 @@ public class DocumentDaoImpl implements DocumentDao, BasicRequests {
     public DocumentDto addNewDocument(DocumentDto documentDto, CatalogueDto catalogueDto) {
         String insert1 = "INSERT INTO DOCUMENT (name, priority, document_type_id, created_time, parent_id) " +
                 "VALUES (?,?,?,?,?)";
-        String insert2 = "INSERT INTO CATALOGUE_AND_DOCUMENT (CATALOGUE_id, DOCUMENT_id) VALUES (?,?)";
-        try (PreparedStatement preparedStatement = cn.prepareStatement(insert1);
-             PreparedStatement preparedStatement2 = cn.prepareStatement(insert2)) {
-            //cn.setAutoCommit(false);
-            //Savepoint savepoint = cn.setSavepoint();
-
+        try (PreparedStatement preparedStatement = cn.prepareStatement(insert1)) {
             preparedStatement.setString(1, documentDto.getName());
             preparedStatement.setInt(2, documentDto.getPriority().ordinal());
             preparedStatement.setLong(3, documentDto.getDocumentType());
@@ -60,24 +55,11 @@ public class DocumentDaoImpl implements DocumentDao, BasicRequests {
             ResultSet rs = preparedStatement.getGeneratedKeys();
             if (rs.next()) {
                 Long id = rs.getLong(1);
-                preparedStatement2.setLong(1, catalogueDto.getId());
-                preparedStatement2.setLong(2, id);
-                preparedStatement2.executeUpdate();
-                //cn.commit();
                 return getDocumentById(id);
             } else {
-                //cn.rollback();
+                throw new SQLException("not inserted");
             }
-            //cn.setAutoCommit(true);
         } catch (SQLException e) {
-//            if (cn != null) {
-//                try {
-//                    cn.rollback();
-//                    cn.setAutoCommit(true);
-//                } catch (SQLException e1){
-//                    log.error(e1.getMessage());
-//                }
-//            }
             log.error(e.getMessage());
         }
         return null;
@@ -88,7 +70,7 @@ public class DocumentDaoImpl implements DocumentDao, BasicRequests {
         String stringQuery = "SELECT * FROM DOCUMENT";
         List<DocumentDto> list = List.of();
         try {
-            list = getAll(stringQuery, cn);
+            list = getList(stringQuery, cn);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
