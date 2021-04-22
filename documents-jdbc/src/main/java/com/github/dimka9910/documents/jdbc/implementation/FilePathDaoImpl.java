@@ -3,6 +3,7 @@ package com.github.dimka9910.documents.jdbc.implementation;
 import com.github.dimka9910.documents.dao.FilePathDao;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
+import com.github.dimka9910.documents.dto.files.documents.DocumentTypeDto;
 import com.github.dimka9910.documents.dto.files.documents.FilePathDto;
 import com.github.dimka9910.documents.jdbc.DbConnection;
 import lombok.extern.slf4j.Slf4j;
@@ -79,5 +80,16 @@ public class FilePathDaoImpl implements FilePathDao, BasicRequests {
             log.error(e.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public void deleteFilePath(FilePathDto filePathDto) {
+        String stringQuery = "DELETE FROM FILE_PATH WHERE id = ?";
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+            statement.setLong(1, filePathDto.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
     }
 }

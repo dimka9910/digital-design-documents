@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -16,5 +17,5 @@ public class ConcreteDocumentDto {
     private Long version;
     private Timestamp modified_time;
     private Long parent_id;
-    private Set<Long> data;
+    private List<FilePathDto> data;
 }

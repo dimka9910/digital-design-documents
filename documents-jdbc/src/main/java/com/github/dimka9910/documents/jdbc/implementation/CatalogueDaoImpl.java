@@ -10,6 +10,7 @@ import com.github.dimka9910.documents.jdbc.DbConnection;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -77,13 +78,13 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
 
     @Override
     public List<FileAbstractDto> getAllChildren(CatalogueDto catalogueDto) {
-        String stringQueryCatalogue = "SELECT C.id as id, C.name as name, c.type_of_file as type_of_file, c.parent_id as parent_id\n" +
+        String stringQueryCatalogue = "SELECT C.id as id, C.name as name, c.type_of_file as type_of_file, c.created_time, c.parent_id as parent_id\n" +
                 "FROM CATALOGUE\n" +
                 "JOIN CATALOGUE_AND_CATALOGUE CAC on CATALOGUE.id = CAC.CATALOGUE_id\n" +
                 "JOIN CATALOGUE C on C.id = CAC.CATALOGUE_children_id WHERE CATALOGUE.id = '" + catalogueDto.getId() + "'";
 
         String stringQueryDocuments = "SELECT D.id as id, D.name as name, d.type_of_file as type_of_file,\n" +
-                "       D.priority as priority, document_type_id, created_time, D.parent_id FROM CATALOGUE\n" +
+                "       D.priority as priority, document_type_id, D.created_time, D.parent_id FROM CATALOGUE\n" +
                 "JOIN CATALOGUE_AND_DOCUMENT CAD on CATALOGUE.id = CAD.CATALOGUE_id\n" +
                 "JOIN DOCUMENT D on CAD.DOCUMENT_id = D.id WHERE CATALOGUE.id = '" + catalogueDto.getId() + "'";
 
@@ -102,16 +103,16 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
     @Override
     public CatalogueDto addCatalogue(CatalogueDto catalogueDto, CatalogueDto parent) {
 
-        String insert1 = "INSERT INTO CATALOGUE (name, parent_id) VALUES (?,?)";
+        String insert1 = "INSERT INTO CATALOGUE (name, parent_id, created_time) VALUES (?,?,?)";
         String insert2 = "INSERT INTO CATALOGUE_AND_CATALOGUE (CATALOGUE_id, CATALOGUE_children_id) VALUES (?,?)";
         try (PreparedStatement preparedStatement = cn.prepareStatement(insert1);
         PreparedStatement preparedStatement2 = cn.prepareStatement(insert2)){
             //cn.setAutoCommit(false);
-
             //Savepoint savepoint = cn.setSavepoint();
 
             preparedStatement.setString(1, catalogueDto.getName());
             preparedStatement.setLong(2, parent.getId());
+            preparedStatement.setTimestamp(3, getCurrentTime());
 
             preparedStatement.executeUpdate();
             ResultSet rs = preparedStatement.getGeneratedKeys();
@@ -151,5 +152,16 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
             log.error(e.getMessage());
         }
         return catalogueDto;
+    }
+
+    @Override
+    public void deleteCatalogue(CatalogueDto catalogueDto) {
+        String stringQuery = "DELETE FROM CATALOGUE WHERE id = ?";
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+            statement.setLong(1, catalogueDto.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
     }
 }

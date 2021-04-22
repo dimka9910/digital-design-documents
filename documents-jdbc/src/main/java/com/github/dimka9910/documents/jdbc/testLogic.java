@@ -19,6 +19,7 @@ import java.sql.Statement;
 public class testLogic {
 
     public static void main(String[] args) {
+
 //        UserDto user = UserDto.builder().login("l1").password("p2").role(UserRolesEnum.USER).build();
 //        userDaoImpl.addNewUser(user);
 

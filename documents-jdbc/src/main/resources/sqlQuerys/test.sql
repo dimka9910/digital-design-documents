@@ -3,13 +3,15 @@
 INSERT INTO USER (login, password, role)
 VALUES ('log2', 'pas', 1);
 
+SELECT * FROM CATALOGUE;
+
 
 SELECT D.id           as id,
        D.name         as name,
        d.type_of_file as type_of_file,
        D.priority     as priority,
        document_type_id,
-       created_time,
+       D.created_time,
        D.parent_id
 FROM CATALOGUE
          JOIN CATALOGUE_AND_DOCUMENT CAD on CATALOGUE.id = CAD.CATALOGUE_id
@@ -64,6 +66,7 @@ VALUES (1, 2),
 SELECT *
 FROM CATALOGUE_AND_CATALOGUE
 
+SELECT * FROM CONCRETE_DOCUMENT;
 
 SELECT id, filepath, parent_id
 FROM FILE_PATH_AND_CONCRETE_DOCUMENT

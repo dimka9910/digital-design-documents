@@ -1,6 +1,7 @@
 package com.github.dimka9910.documents.jdbc.implementation;
 
 import com.github.dimka9910.documents.dao.ConcreteDocumentDao;
+import com.github.dimka9910.documents.dao.FilePathDao;
 import com.github.dimka9910.documents.dto.files.TypeOfFileEnum;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
@@ -8,10 +9,7 @@ import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
 import com.github.dimka9910.documents.jdbc.DbConnection;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.List;
 
 @Slf4j
@@ -38,16 +36,70 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
 
     @Override
     public ConcreteDocumentDto addNewVersion(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto) {
+        String stringQuery = "INSERT INTO CONCRETE_DOCUMENT (name, description, version, modified_time, parent_id) " +
+                "VALUES (?,?,?,?,?)";
+
+        FilePathDaoImpl filePathDao = new FilePathDaoImpl();
+        if (concreteDocumentDto.getData() != null)
+            concreteDocumentDto.getData().forEach(v -> filePathDao.addNewFilePathOfConcreteDocument(v, concreteDocumentDto));
+
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+            statement.setString(1, concreteDocumentDto.getName());
+            statement.setString(2, concreteDocumentDto.getDescription());
+            statement.setLong(3, concreteDocumentDto.getVersion());
+            statement.setTimestamp(4, getCurrentTime());
+            statement.setLong(5, documentDto.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         return null;
     }
 
     @Override
     public ConcreteDocumentDto getLastVersion(DocumentDto documentDto) {
-        return null;
+
+        String stringQuery = "SELECT C.id as id, C.name as name, description, version, modified_time, c.parent_id as parent_id\n" +
+                "FROM DOCUMENT JOIN CONCRETE_DOCUMENT C on DOCUMENT.id = C.parent_id\n" +
+                "WHERE C.parent_id = ?\n" +
+                "ORDER BY version DESC";
+
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+            statement.setLong(1, documentDto.getId());
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return parser(resultSet);
+                }
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return ConcreteDocumentDto.builder().build();
     }
 
     @Override
     public List<ConcreteDocumentDto> getAllVersions(DocumentDto documentDto) {
-        return null;
+        String stringQuery = "SELECT C.id as id, C.name as name, description, version, modified_time, c.parent_id as parent_id\n" +
+                "FROM DOCUMENT JOIN CONCRETE_DOCUMENT C on DOCUMENT.id = C.parent_id\n" +
+                "WHERE DOCUMENT.parent_id = " + documentDto.getId() +
+                " ORDER BY version DESC";
+        try {
+            return getAll(stringQuery, cn);
+        } catch (SQLException exception) {
+            log.error(exception.getMessage());
+        }
+        return List.of();
     }
+
+    @Override
+    public void deleteConcreteDocument(ConcreteDocumentDto concreteDocumentDto) {
+        String stringQuery = "DELETE FROM CONCRETE_DOCUMENT WHERE id = ?";
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+            statement.setLong(1, concreteDocumentDto.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+    }
+
 }

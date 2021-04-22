@@ -1,6 +1,7 @@
 package com.github.dimka9910.documents.jdbc.implementation;
 
 import com.github.dimka9910.documents.dao.UserDao;
+import com.github.dimka9910.documents.dto.files.documents.FilePathDto;
 import com.github.dimka9910.documents.dto.user.UserDto;
 import com.github.dimka9910.documents.dto.user.UserRolesEnum;
 import com.github.dimka9910.documents.jdbc.DbConnection;
@@ -77,5 +78,16 @@ public class UserDaoImpl implements UserDao {
             log.error(e.getMessage());
         }
         return list;
+    }
+
+    @Override
+    public void deleteUser(UserDto userDto) {
+        String stringQuery = "DELETE FROM USER WHERE id = ?";
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+            statement.setLong(1, userDto.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
     }
 }

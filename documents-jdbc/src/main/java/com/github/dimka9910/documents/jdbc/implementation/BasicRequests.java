@@ -3,10 +3,8 @@ package com.github.dimka9910.documents.jdbc.implementation;
 import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,5 +21,9 @@ public interface BasicRequests<T> {
             }
         }
         return list;
+    }
+
+    default Timestamp getCurrentTime(){
+        return new Timestamp(new Date().getTime());
     }
 }
