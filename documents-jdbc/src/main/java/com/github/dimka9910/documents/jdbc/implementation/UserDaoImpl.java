@@ -12,28 +12,30 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Slf4j
-public class UserDaoImpl implements UserDao {
+public class UserDaoImpl implements UserDao, BasicRequests {
     Connection cn = DbConnection.getConnection();
 
     @Override
+    public Object parser(ResultSet resultSet) throws SQLException {
+        Long id = resultSet.getLong("id");
+        String login = resultSet.getString("login");
+        String password = resultSet.getString("password");
+        int role = resultSet.getInt("role");
+        return UserDto.builder()
+                .id(id)
+                .login(login)
+                .password(password)
+                .role(UserRolesEnum.values()[role])
+                .build();
+    }
+
+
+    // ПОКА КОСТЫЛЬНО НО СТОИТ БЫ ПОМЕНЯТЬ
+    @Override
     public UserDto getCurrentUser() {
-        try (Statement statement = cn.createStatement()) {
-            try (ResultSet usersResult = statement.executeQuery("SELECT * FROM USER")) {
-                while (usersResult.next()) {
-                    Long id = (long)usersResult.getInt("id");
-                    String login = usersResult.getString("login");
-                    String password = usersResult.getString("password");
-                    int role = usersResult.getInt("role");
-                    return UserDto.builder()
-                            .id(id)
-                            .login(login)
-                            .password(password)
-                            .role(UserRolesEnum.values()[role])
-                            .build();
-                }
-            } catch (SQLException e) {
-                log.error(e.getMessage());
-            }
+        String stringQuery = "SELECT * FROM USER";
+        try {
+            return (UserDto) getOne(stringQuery, cn);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -56,24 +58,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<UserDto> getAllUsers() {
+        String stringQuery = "SELECT * FROM USER";
         List<UserDto> list = new LinkedList<>();
-        try (Statement statement = cn.createStatement()) {
-            try (ResultSet usersResult = statement.executeQuery("SELECT * FROM USER")) {
-                while (usersResult.next()) {
-                    Long id = (long)usersResult.getInt("id");
-                    String login = usersResult.getString("login");
-                    String password = usersResult.getString("password");
-                    int role = usersResult.getInt("role");
-                    list.add(UserDto.builder()
-                            .id(id)
-                            .login(login)
-                            .password(password)
-                            .role(UserRolesEnum.values()[role])
-                            .build());
-                }
-            } catch (SQLException e) {
-                log.error(e.getMessage());
-            }
+        try {
+            return getList(stringQuery, cn);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }

@@ -29,7 +29,7 @@ public class DocumentTypeDaoImpl implements DocumentTypeDao, BasicRequests {
         String statement = "SELECT * FROM DOCUMENT_TYPE";
         List<DocumentTypeDto> list = new LinkedList<>();
         try {
-            list = getAll(statement, cn);
+            list = getList(statement, cn);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -40,7 +40,7 @@ public class DocumentTypeDaoImpl implements DocumentTypeDao, BasicRequests {
     public DocumentTypeDto addNewDocumentType(DocumentTypeDto documentTypeDto) {
         String insert = "INSERT INTO DOCUMENT_TYPE (name) VALUES (?)";
         try (PreparedStatement preparedStatement = cn.prepareStatement(insert)) {
-            preparedStatement.setString(1, documentTypeDto.getName());
+            preparedStatement.setString(1, documentTypeDto.getName().toLowerCase());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());
@@ -53,7 +53,7 @@ public class DocumentTypeDaoImpl implements DocumentTypeDao, BasicRequests {
     public DocumentTypeDto getDocumentTypeByType(String name) {
         String insert = "SELECT * FROM DOCUMENT_TYPE WHERE name = ?";
         try (PreparedStatement statement = cn.prepareStatement(insert)) {
-            statement.setString(1, name);
+            statement.setString(1, name.toLowerCase());
             try (ResultSet usersResult = statement.executeQuery()) {
                 if (usersResult.next()) {
                     return parser(usersResult);

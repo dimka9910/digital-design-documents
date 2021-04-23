@@ -28,15 +28,25 @@ public class FilePathDaoImpl implements FilePathDao, BasicRequests {
     }
 
     @Override
+    public FilePathDto getById(Long id) {
+        String stringQuery = "SELECT * FROM FILE_PATH WHERE ID = ?";
+        try {
+            return (FilePathDto) getOne(stringQuery, cn, id);
+        } catch (SQLException e){
+            log.error(e.getMessage());
+        }
+        return FilePathDto.builder().build();
+    }
+
+    @Override
     public List<FilePathDto> getAllFilePathOfConcreteDocument(ConcreteDocumentDto concreteDocumentDto) {
-        String stringQuery = "\n" +
-                "SELECT id, filepath, parent_id\n" +
-                "FROM FILE_PATH_AND_CONCRETE_DOCUMENT\n" +
-                "         JOIN FILE_PATH FP on FP.id = FILE_PATH_AND_CONCRETE_DOCUMENT.FILE_PATH_id " +
-                "WHERE CONCRETE_DOCUMENT_id = '" + concreteDocumentDto.getId() + "'";
+        String stringQuery = "SELECT id, filepath, parent_id\n" +
+                "FROM FILE_PATH\n" +
+                "JOIN CONCRETE_DOCUMENT CD on CD.id = FILE_PATH.parent_id " +
+                "WHERE parent_id = ?";
         List<FilePathDto> list = List.of();
         try {
-            list = getAll(stringQuery, cn);
+            list = getList(stringQuery, cn, concreteDocumentDto.getId());
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -46,12 +56,7 @@ public class FilePathDaoImpl implements FilePathDao, BasicRequests {
     @Override
     public FilePathDto addNewFilePathOfConcreteDocument(FilePathDto filePathDto, ConcreteDocumentDto parent) {
         String insert1 = "INSERT INTO FILE_PATH (filepath, parent_id) VALUES (?,?)";
-        String insert2 = "INSERT INTO FILE_PATH_AND_CONCRETE_DOCUMENT (concrete_document_id, file_path_id) VALUES (?,?)";
-        try (PreparedStatement preparedStatement1 = cn.prepareStatement(insert1);
-             PreparedStatement preparedStatement2 = cn.prepareStatement(insert2)){
-            //cn.setAutoCommit(false);
-            //Savepoint savepoint = cn.setSavepoint();
-
+        try (PreparedStatement preparedStatement1 = cn.prepareStatement(insert1)){
             preparedStatement1.setString(1, filePathDto.getPath());
             preparedStatement1.setLong(2, parent.getId());
 
@@ -59,23 +64,11 @@ public class FilePathDaoImpl implements FilePathDao, BasicRequests {
             ResultSet rs = preparedStatement1.getGeneratedKeys();
             if (rs.next()) {
                 Long id = rs.getLong(1);
-                preparedStatement2.setLong(1, parent.getId());
-                preparedStatement2.setLong(2, id);
-                preparedStatement2.executeUpdate();
-                //cn.commit();
+                return getById(id);
             } else {
-                //cn.rollback();
+                throw new SQLException("NOT ADDED");
             }
-            //cn.setAutoCommit(true);
         } catch(SQLException e){
-//            if (cn != null) {
-//                try {
-//                    cn.rollback();
-//                    cn.setAutoCommit(true);
-//                } catch (SQLException e1){
-//                    log.error(e1.getMessage());
-//                }
-//            }
             log.error(e.getMessage());
         }
         return null;

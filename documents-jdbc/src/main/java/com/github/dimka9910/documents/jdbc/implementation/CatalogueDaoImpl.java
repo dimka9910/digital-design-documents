@@ -36,12 +36,8 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
     @Override
     public CatalogueDto getRootCatalogue() {
         String stringQuery = "SELECT * FROM CATALOGUE WHERE parent_id = id";
-        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
-            try (ResultSet catalogueResult = statement.executeQuery()) {
-                if (catalogueResult.next()) {
-                    return parser(catalogueResult);
-                }
-            }
+        try {
+            return (CatalogueDto) getOne(stringQuery, cn);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -51,13 +47,8 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
     @Override
     public CatalogueDto getCatalogueById(Long id) {
         String stringQuery = "SELECT * FROM CATALOGUE WHERE id = ?";
-        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
-            statement.setLong(1, id);
-            try (ResultSet catalogueResult = statement.executeQuery()) {
-                if (catalogueResult.next()) {
-                    return parser(catalogueResult);
-                }
-            }
+        try {
+            return (CatalogueDto) getOne(stringQuery, cn, id);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -69,7 +60,7 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
         String stringQuery = "SELECT * FROM CATALOGUE";
         List<CatalogueDto> list = List.of();
         try {
-            list = getAll(stringQuery, cn);
+            list = getList(stringQuery, cn, null);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -80,20 +71,17 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
     public List<FileAbstractDto> getAllChildren(CatalogueDto catalogueDto) {
         String stringQueryCatalogue = "SELECT C.id as id, C.name as name, c.type_of_file as type_of_file, c.created_time, c.parent_id as parent_id\n" +
                 "FROM CATALOGUE\n" +
-                "JOIN CATALOGUE_AND_CATALOGUE CAC on CATALOGUE.id = CAC.CATALOGUE_id\n" +
-                "JOIN CATALOGUE C on C.id = CAC.CATALOGUE_children_id WHERE CATALOGUE.id = '" + catalogueDto.getId() + "'";
+                "JOIN CATALOGUE C on CATALOGUE.id = C.parent_id WHERE CATALOGUE.id = ? ORDER BY C.created_time";
 
         String stringQueryDocuments = "SELECT D.id as id, D.name as name, d.type_of_file as type_of_file,\n" +
                 "       D.priority as priority, document_type_id, D.created_time, D.parent_id FROM CATALOGUE\n" +
-                "JOIN CATALOGUE_AND_DOCUMENT CAD on CATALOGUE.id = CAD.CATALOGUE_id\n" +
-                "JOIN DOCUMENT D on CAD.DOCUMENT_id = D.id WHERE CATALOGUE.id = '" + catalogueDto.getId() + "'";
+                "JOIN DOCUMENT D on CATALOGUE.id = D.parent_id WHERE CATALOGUE.id = ? ORDER BY D.created_time";
 
         List<FileAbstractDto> list = new LinkedList<>();
-
         try {
             DocumentDaoImpl documentDao = new DocumentDaoImpl();
-            list = getAll(stringQueryCatalogue, cn);
-            list.addAll(documentDao.getAll(stringQueryDocuments, cn));
+            list = getList(stringQueryCatalogue, cn, catalogueDto.getId());
+            list.addAll(documentDao.getList(stringQueryDocuments, cn, catalogueDto.getId()));
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -104,12 +92,7 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
     public CatalogueDto addCatalogue(CatalogueDto catalogueDto, CatalogueDto parent) {
 
         String insert1 = "INSERT INTO CATALOGUE (name, parent_id, created_time) VALUES (?,?,?)";
-        String insert2 = "INSERT INTO CATALOGUE_AND_CATALOGUE (CATALOGUE_id, CATALOGUE_children_id) VALUES (?,?)";
-        try (PreparedStatement preparedStatement = cn.prepareStatement(insert1);
-        PreparedStatement preparedStatement2 = cn.prepareStatement(insert2)){
-            //cn.setAutoCommit(false);
-            //Savepoint savepoint = cn.setSavepoint();
-
+        try (PreparedStatement preparedStatement = cn.prepareStatement(insert1)){
             preparedStatement.setString(1, catalogueDto.getName());
             preparedStatement.setLong(2, parent.getId());
             preparedStatement.setTimestamp(3, getCurrentTime());
@@ -118,25 +101,9 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
             ResultSet rs = preparedStatement.getGeneratedKeys();
             if (rs.next()) {
                 Long id = rs.getLong(1);
-                preparedStatement2.setLong(1, parent.getId());
-                preparedStatement2.setLong(2, id);
-                preparedStatement2.executeUpdate();
-                //cn.commit();
-                catalogueDto.setId(id);
-                return catalogueDto;
-            } else {
-                //cn.rollback();
+                return getCatalogueById(id);
             }
-            //cn.setAutoCommit(true);
         } catch(SQLException e){
-//            if (cn != null) {
-//                try {
-//                    cn.rollback();
-//                    cn.setAutoCommit(true);
-//                } catch (SQLException e1){
-//                    log.error(e1.getMessage());
-//                }
-//            }
             log.error(e.getMessage());
         }
         return null;
