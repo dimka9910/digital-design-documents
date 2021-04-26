@@ -40,7 +40,7 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
                 "VALUES (?,?,?,?,?)";
 
         FilePathDaoImpl filePathDao = new FilePathDaoImpl();
-        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, concreteDocumentDto.getName());
             statement.setString(2, concreteDocumentDto.getDescription());
             statement.setLong(3, concreteDocumentDto.getVersion());
@@ -53,6 +53,9 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
                 concreteDocumentDto.setId(id);
                 if (concreteDocumentDto.getData() != null)
                     concreteDocumentDto.getData().forEach(v -> filePathDao.addNewFilePathOfConcreteDocument(v, concreteDocumentDto));
+
+                DocumentDaoImpl documentDao = new DocumentDaoImpl();
+                documentDao.modifyDocument(documentDto, concreteDocumentDto);
                 return concreteDocumentDto;
             }
         } catch (SQLException e) {

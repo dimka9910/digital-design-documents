@@ -44,7 +44,7 @@ public class DocumentDaoImpl implements DocumentDao, BasicRequests {
     public DocumentDto addNewDocument(DocumentDto documentDto, CatalogueDto catalogueDto) {
         String insert1 = "INSERT INTO DOCUMENT (name, priority, document_type_id, created_time, parent_id) " +
                 "VALUES (?,?,?,?,?)";
-        try (PreparedStatement preparedStatement = cn.prepareStatement(insert1)) {
+        try (PreparedStatement preparedStatement = cn.prepareStatement(insert1, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, documentDto.getName());
             preparedStatement.setInt(2, documentDto.getPriority().ordinal());
             preparedStatement.setLong(3, documentDto.getDocumentType());
@@ -94,6 +94,19 @@ public class DocumentDaoImpl implements DocumentDao, BasicRequests {
     }
 
     @Override
+    public DocumentDto modifyDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto) {
+        String stringQuery = "UPDATE DOCUMENT SET name = ? WHERE id = ?";
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, concreteDocumentDto.getName());
+            statement.setLong(2, documentDto.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return getDocumentById(documentDto.getId());
+    }
+
+    @Override
     public void deleteDocument(DocumentDto documentDto) {
         String stringQuery = "DELETE FROM DOCUMENT WHERE id = ?";
         try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
@@ -103,4 +116,6 @@ public class DocumentDaoImpl implements DocumentDao, BasicRequests {
             log.error(e.getMessage());
         }
     }
+
+
 }

@@ -32,19 +32,20 @@ public class CatalogueTesting {
         System.out.println(catalogueService.getCatalogueById(4L));
     }
 
-    public static void creation() {
-        inner(4L);
-        CatalogueDto catalogueDto = catalogueService.createCatalogue(CatalogueDto.builder().name("new_name").build(), 4L);
-        inner(4L);
-        catalogueService.deleteCatalogueById(catalogueDto.getId());
-        inner(4L);
+    public static void creation(Long n) {
+        inner(n);
+        CatalogueDto catalogueDto = catalogueService.createCatalogue(CatalogueDto.builder().name("new_name8").build(), n);
+        inner(n);
+//        System.out.println(catalogueDto);
+//        catalogueService.deleteCatalogueById(catalogueDto.getId());
+//        inner(n);
     }
 
     public static void main(String[] args) {
 //        root();
-        inner(1L);
+//        inner(1L);
 //        modify();
-//       creation();
+       creation(1L);
 
     }
 

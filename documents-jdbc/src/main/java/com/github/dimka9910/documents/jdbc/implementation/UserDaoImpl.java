@@ -33,7 +33,7 @@ public class UserDaoImpl implements UserDao, BasicRequests {
     // ПОКА КОСТЫЛЬНО НО СТОИТ БЫ ПОМЕНЯТЬ
     @Override
     public UserDto getCurrentUser() {
-        String stringQuery = "SELECT * FROM USER";
+        String stringQuery = "SELECT * FROM USERS";
         try {
             return (UserDto) getOne(stringQuery, cn);
         } catch (SQLException e) {
@@ -44,7 +44,7 @@ public class UserDaoImpl implements UserDao, BasicRequests {
 
     @Override
     public UserDto addNewUser(UserDto userDto) {
-        String insert = "INSERT INTO USER (login, password, role) VALUES (?,?,?)";
+        String insert = "INSERT INTO USERS (login, password, role) VALUES (?,?,?)";
         try (PreparedStatement preparedStatement = cn.prepareStatement(insert)) {
             preparedStatement.setString(1, userDto.getLogin());
             preparedStatement.setString(2, userDto.getPassword());
@@ -58,7 +58,7 @@ public class UserDaoImpl implements UserDao, BasicRequests {
 
     @Override
     public List<UserDto> getAllUsers() {
-        String stringQuery = "SELECT * FROM USER";
+        String stringQuery = "SELECT * FROM USERS";
         List<UserDto> list = new LinkedList<>();
         try {
             return getList(stringQuery, cn);
@@ -70,7 +70,7 @@ public class UserDaoImpl implements UserDao, BasicRequests {
 
     @Override
     public void deleteUser(UserDto userDto) {
-        String stringQuery = "DELETE FROM USER WHERE id = ?";
+        String stringQuery = "DELETE FROM USERS WHERE id = ?";
         try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
             statement.setLong(1, userDto.getId());
             statement.executeUpdate();

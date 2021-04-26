@@ -25,6 +25,8 @@ public class DocumentService {
         return concreteDocumentDao.getAllVersions(documentDao.getDocumentById(id));
     }
 
+
+
     public ConcreteDocumentDto saveNewDocument(String name,
             PriorityEnum priorityEnum,
             Long documentTypeId,
@@ -50,7 +52,6 @@ public class DocumentService {
                 .build();
 
         concreteDocumentDao.addNewVersion(documentDto, concreteDocumentDto);
-
         return concreteDocumentDto;
     }
 
@@ -62,6 +63,10 @@ public class DocumentService {
 
     public List<DocumentTypeDto> getAllDocumentTypes(){
         return documentTypeDao.getAllDocumentTypes();
+    }
+
+    public DocumentTypeDto addDocumentType(String name){
+        return documentTypeDao.addNewDocumentType(DocumentTypeDto.builder().name(name).build());
     }
 
     public void deleteDocumentById(Long id){

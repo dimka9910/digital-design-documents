@@ -21,14 +21,13 @@ public class DocumentDto extends FileAbstractDto {
     private List<Long> versionsOfDocuments;
 
     @Builder
-    public DocumentDto(Long id, Long parent_id, Timestamp created_time, Set<UserDto> readWritePermissionedUsers, Set<UserDto> readPermissionedUsers, String name, TypeOfFileEnum typeOfFile, Long documentType, PriorityEnum priority, ConcreteDocumentDto topVersionDocument, List<Long> versionsOfDocuments) {
-        super(id, parent_id, created_time, readWritePermissionedUsers, readPermissionedUsers, name, typeOfFile);
+    public DocumentDto(Long id, Long parent_id, Timestamp created_time, UserDto created_by, Set<UserDto> readWritePermissionedUsers, Set<UserDto> readPermissionedUsers, String name, TypeOfFileEnum typeOfFile, Long documentType, PriorityEnum priority, ConcreteDocumentDto topVersionDocument, List<Long> versionsOfDocuments) {
+        super(id, parent_id, created_time, created_by, readWritePermissionedUsers, readPermissionedUsers, name, typeOfFile);
         this.documentType = documentType;
         this.priority = priority;
         this.topVersionDocument = topVersionDocument;
         this.versionsOfDocuments = versionsOfDocuments;
     }
-
 
     @Override
     public String toString() {
