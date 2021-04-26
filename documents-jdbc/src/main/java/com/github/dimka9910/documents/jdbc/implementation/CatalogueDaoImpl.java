@@ -92,27 +92,29 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
     public CatalogueDto addCatalogue(CatalogueDto catalogueDto, CatalogueDto parent) {
 
         String insert1 = "INSERT INTO CATALOGUE (name, parent_id, created_time) VALUES (?,?,?)";
-        try (PreparedStatement preparedStatement = cn.prepareStatement(insert1)){
+        try (PreparedStatement preparedStatement = cn.prepareStatement(insert1, Statement.RETURN_GENERATED_KEYS)){
             preparedStatement.setString(1, catalogueDto.getName());
             preparedStatement.setLong(2, parent.getId());
             preparedStatement.setTimestamp(3, getCurrentTime());
 
-            preparedStatement.executeUpdate();
+            preparedStatement.execute();
             ResultSet rs = preparedStatement.getGeneratedKeys();
             if (rs.next()) {
                 Long id = rs.getLong(1);
                 return getCatalogueById(id);
+            } else {
+                throw new SQLException("id not found");
             }
         } catch(SQLException e){
             log.error(e.getMessage());
         }
-        return null;
+        return CatalogueDto.builder().id(0L).build();
     }
 
     @Override
     public CatalogueDto modifyCatalogue(CatalogueDto catalogueDto) {
         String stringQuery = "UPDATE CATALOGUE SET name = ? WHERE id = ?";
-        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, catalogueDto.getName());
             statement.setLong(2, catalogueDto.getId());
             statement.executeUpdate();

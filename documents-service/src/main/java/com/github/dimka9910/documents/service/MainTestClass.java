@@ -14,27 +14,31 @@ public class MainTestClass {
         DocumentService documentService = new DocumentService();
 
 
-        System.out.println();
-        System.out.println(documentService.openDocumentById(1L));
+//        System.out.println();
+//        System.out.println(documentService.openDocumentById(1L));
 
-        System.out.println();
+//        System.out.println(catalogueService.getCatalogueById(1L));
+
+//        System.out.println(catalogueService.getInnerCataloguesAndDocuments(1L));
+
+//        System.out.println();
 
 //        documentService.saveNewDocument("new12345",
 //                PriorityEnum.DEFAULT, 1L,
 //                "descr", 1L, List.of(), catalogueService.getCatalogueById(2L));
 
-        catalogueService.getInnerCataloguesAndDocuments(2L).forEach(System.out::println);
-
-        System.out.println(documentService.openDocumentById(5L));
-
-        ConcreteDocumentDto concreteDocumentDto = documentService.openDocumentById(5L);
-
-        System.out.println(concreteDocumentDto);
-        concreteDocumentDto.setDescription("new Descr");
-        concreteDocumentDto.setVersion(2L);
-        documentService.modifyDocument(concreteDocumentDto);
-
-        System.out.println(documentService.openDocumentById(5L));
+//        catalogueService.getInnerCataloguesAndDocuments(2L).forEach(System.out::println);
+//
+//        System.out.println(documentService.openDocumentById(5L));
+//
+//        ConcreteDocumentDto concreteDocumentDto = documentService.openDocumentById(5L);
+//
+//        System.out.println(concreteDocumentDto);
+//        concreteDocumentDto.setDescription("new Descr");
+//        concreteDocumentDto.setVersion(2L);
+//        documentService.modifyDocument(concreteDocumentDto);
+//
+//        System.out.println(documentService.openDocumentById(5L));
 
     }
 }

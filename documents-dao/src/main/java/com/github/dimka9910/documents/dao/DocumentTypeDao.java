@@ -10,5 +10,7 @@ public interface DocumentTypeDao extends AbstractDao{
     DocumentTypeDto addNewDocumentType(DocumentTypeDto documentTypeDto);
     DocumentTypeDto getDocumentTypeByType(String name);
 
+    DocumentTypeDto getDocumentTypeById(Long id);
+
     void deleteDocumentType(DocumentTypeDto documentTypeDto);
 }

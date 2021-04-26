@@ -1,5 +1,6 @@
 package com.github.dimka9910.documents.dto.files.documents;
 
+import com.github.dimka9910.documents.dto.user.UserDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class ConcreteDocumentDto {
     private String description;
     private Long version;
     private Timestamp modified_time;
+    private UserDto modified_by;
     private Long parent_id;
     private List<FilePathDto> data;
 }

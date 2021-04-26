@@ -13,6 +13,7 @@ public abstract class FileAbstractDto {
     protected Long id;
     protected Long parent_id;
     protected Timestamp created_time;
+    protected UserDto created_by;
     protected Set<UserDto> readWritePermissionedUsers;
     protected Set<UserDto> readPermissionedUsers;
     protected String name;

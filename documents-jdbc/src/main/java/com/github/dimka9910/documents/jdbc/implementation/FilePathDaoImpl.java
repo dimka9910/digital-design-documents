@@ -56,7 +56,7 @@ public class FilePathDaoImpl implements FilePathDao, BasicRequests {
     @Override
     public FilePathDto addNewFilePathOfConcreteDocument(FilePathDto filePathDto, ConcreteDocumentDto parent) {
         String insert1 = "INSERT INTO FILE_PATH (filepath, parent_id) VALUES (?,?)";
-        try (PreparedStatement preparedStatement1 = cn.prepareStatement(insert1)){
+        try (PreparedStatement preparedStatement1 = cn.prepareStatement(insert1, Statement.RETURN_GENERATED_KEYS)){
             preparedStatement1.setString(1, filePathDto.getPath());
             preparedStatement1.setLong(2, parent.getId());
 

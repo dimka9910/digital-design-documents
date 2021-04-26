@@ -1,6 +1,7 @@
 package com.github.dimka9910.documents.jdbc.implementation;
 
 import com.github.dimka9910.documents.dao.DocumentTypeDao;
+import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentTypeDto;
 import com.github.dimka9910.documents.jdbc.DbConnection;
@@ -25,6 +26,17 @@ public class DocumentTypeDaoImpl implements DocumentTypeDao, BasicRequests {
     }
 
     @Override
+    public DocumentTypeDto getDocumentTypeById(Long id) {
+        String stringQuery = "SELECT * FROM document_type WHERE id = ?";
+        try {
+            return (DocumentTypeDto) getOne(stringQuery, cn, id);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return DocumentTypeDto.builder().build();
+    }
+
+    @Override
     public List<DocumentTypeDto> getAllDocumentTypes() {
         String statement = "SELECT * FROM DOCUMENT_TYPE";
         List<DocumentTypeDto> list = new LinkedList<>();
@@ -39,9 +51,16 @@ public class DocumentTypeDaoImpl implements DocumentTypeDao, BasicRequests {
     @Override
     public DocumentTypeDto addNewDocumentType(DocumentTypeDto documentTypeDto) {
         String insert = "INSERT INTO DOCUMENT_TYPE (name) VALUES (?)";
-        try (PreparedStatement preparedStatement = cn.prepareStatement(insert)) {
+        try (PreparedStatement preparedStatement = cn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, documentTypeDto.getName().toLowerCase());
             preparedStatement.executeUpdate();
+            ResultSet rs = preparedStatement.getGeneratedKeys();
+            if (rs.next()) {
+                Long id = rs.getLong(1);
+                return getDocumentTypeById(id);
+            } else {
+                throw new SQLException("id not found");
+            }
         } catch (SQLException e) {
             log.error(e.getMessage());
         }

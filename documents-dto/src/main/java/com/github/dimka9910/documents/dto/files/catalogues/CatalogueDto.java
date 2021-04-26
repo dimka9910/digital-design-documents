@@ -16,8 +16,8 @@ public class CatalogueDto extends FileAbstractDto{
     private Set<FileAbstractDto> innerFiles;
 
     @Builder
-    public CatalogueDto(Long id, Long parent_id, Timestamp created_time, Set<UserDto> readWritePermissionedUsers, Set<UserDto> readPermissionedUsers, String name, TypeOfFileEnum typeOfFile, Set<FileAbstractDto> innerFiles) {
-        super(id, parent_id, created_time, readWritePermissionedUsers, readPermissionedUsers, name, typeOfFile);
+    public CatalogueDto(Long id, Long parent_id, Timestamp created_time, UserDto created_by, Set<UserDto> readWritePermissionedUsers, Set<UserDto> readPermissionedUsers, String name, TypeOfFileEnum typeOfFile, Set<FileAbstractDto> innerFiles) {
+        super(id, parent_id, created_time, created_by, readWritePermissionedUsers, readPermissionedUsers, name, typeOfFile);
         this.innerFiles = innerFiles;
     }
 

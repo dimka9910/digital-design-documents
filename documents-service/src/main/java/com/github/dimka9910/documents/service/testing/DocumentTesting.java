@@ -19,7 +19,7 @@ public class DocumentTesting {
     }
 
     public static void addNewDocument(){
-        CatalogueTesting.inner(4L);
+        CatalogueTesting.inner(6L);
 
         System.out.println();
         System.out.println("new_document");
@@ -27,9 +27,9 @@ public class DocumentTesting {
         filePathDtos.add(FilePathDto.builder().path("pp").build());
         filePathDtos.add(FilePathDto.builder().path("pp2").build());
 
-        ConcreteDocumentDto concreteDocumentDto = documentService.saveNewDocument("new123456",
+        ConcreteDocumentDto concreteDocumentDto = documentService.saveNewDocument("new1236",
                 PriorityEnum.DEFAULT, 1L,
-                "descr", 1L, filePathDtos, catalogueService.getCatalogueById(4L));
+                "descr", 1L, filePathDtos, catalogueService.getCatalogueById(6L));
 
         System.out.println("--- concreteDocumentDto ---");
         System.out.println(documentService.openDocumentById(concreteDocumentDto.getParent_id()));
@@ -46,16 +46,16 @@ public class DocumentTesting {
         System.out.println();
         documentService.getAllVersionsById(concreteDocumentDto.getParent_id()).forEach(System.out::println);
 
-        documentService.deleteDocumentById(concreteDocumentDto.getParent_id());
+        //documentService.deleteDocumentById(concreteDocumentDto.getParent_id());
 
-        CatalogueTesting.inner(4L);
+        CatalogueTesting.inner(1L);
 
     }
 
 
     public static void main(String[] args) {
-        getAllTypes();
-        CatalogueTesting.inner(4L);
+        //getAllTypes();
+        //CatalogueTesting.inner(4L);
         addNewDocument();
 
     }
