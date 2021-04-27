@@ -11,5 +11,7 @@ public interface ConcreteDocumentDao extends AbstractDao{
     ConcreteDocumentDto getLastVersion(DocumentDto documentDto);
     List<ConcreteDocumentDto> getAllVersions(DocumentDto documentDto);
 
+    ConcreteDocumentDto getById(Long id);
+
     void deleteConcreteDocument(ConcreteDocumentDto catalogueDto);
 }
