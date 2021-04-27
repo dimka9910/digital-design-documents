@@ -19,36 +19,36 @@ public class DocumentTesting {
     }
 
     public static void addNewDocument(){
-        CatalogueTesting.inner(6L);
-
-        System.out.println();
-        System.out.println("new_document");
-        List<FilePathDto> filePathDtos = new ArrayList<>();
-        filePathDtos.add(FilePathDto.builder().path("pp").build());
-        filePathDtos.add(FilePathDto.builder().path("pp2").build());
-
-        ConcreteDocumentDto concreteDocumentDto = documentService.saveNewDocument("new1236",
-                PriorityEnum.DEFAULT, 1L,
-                "descr", 1L, filePathDtos, catalogueService.getCatalogueById(6L));
-
-        System.out.println("--- concreteDocumentDto ---");
-        System.out.println(documentService.openDocumentById(concreteDocumentDto.getParent_id()));
-        System.out.println();
-
-        concreteDocumentDto.setVersion(3L);
-        concreteDocumentDto.setName("new_name");
-        documentService.modifyDocument(concreteDocumentDto);
-
-        System.out.println("--- concreteDocumentDto (mod) ---");
-        System.out.println(documentService.openDocumentById(concreteDocumentDto.getParent_id()));
-
-
-        System.out.println();
-        documentService.getAllVersionsById(concreteDocumentDto.getParent_id()).forEach(System.out::println);
-
-        //documentService.deleteDocumentById(concreteDocumentDto.getParent_id());
-
-        CatalogueTesting.inner(1L);
+//        CatalogueTesting.inner(6L);
+//
+//        System.out.println();
+//        System.out.println("new_document");
+//        List<FilePathDto> filePathDtos = new ArrayList<>();
+//        filePathDtos.add(FilePathDto.builder().path("pp").build());
+//        filePathDtos.add(FilePathDto.builder().path("pp2").build());
+//
+//        ConcreteDocumentDto concreteDocumentDto = documentService.saveNewDocument("new1236",
+//                PriorityEnum.DEFAULT, 1L,
+//                "descr", 1L, filePathDtos, catalogueService.getCatalogueById(6L));
+//
+//        System.out.println("--- concreteDocumentDto ---");
+//        System.out.println(documentService.openDocumentById(concreteDocumentDto.getParent_id()));
+//        System.out.println();
+//
+//        concreteDocumentDto.setVersion(3L);
+//        concreteDocumentDto.setName("new_name");
+//        documentService.modifyDocument(concreteDocumentDto);
+//
+//        System.out.println("--- concreteDocumentDto (mod) ---");
+//        System.out.println(documentService.openDocumentById(concreteDocumentDto.getParent_id()));
+//
+//
+//        System.out.println();
+//        documentService.getAllVersionsById(concreteDocumentDto.getParent_id()).forEach(System.out::println);
+//
+//        //documentService.deleteDocumentById(concreteDocumentDto.getParent_id());
+//
+//        CatalogueTesting.inner(1L);
 
     }
 

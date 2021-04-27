@@ -35,12 +35,29 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
     }
 
     @Override
+    public ConcreteDocumentDto getById(Long id) {
+        String stringQuery = "SELECT * FROM concrete_document WHERE id = ?";
+        try {
+            return (ConcreteDocumentDto) getOne(stringQuery, cn, id);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return ConcreteDocumentDto.builder().build();
+    }
+
+    @Override
     public ConcreteDocumentDto addNewVersion(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto) {
         String stringQuery = "INSERT INTO CONCRETE_DOCUMENT (name, description, version, modified_time, parent_id) " +
                 "VALUES (?,?,?,?,?)";
 
         FilePathDaoImpl filePathDao = new FilePathDaoImpl();
         try (PreparedStatement statement = cn.prepareStatement(stringQuery, Statement.RETURN_GENERATED_KEYS)) {
+            if (concreteDocumentDto.getVersion() == null) {
+                if (getLastVersion(documentDto).getVersion() == null)
+                    concreteDocumentDto.setVersion(1L);
+                else
+                    concreteDocumentDto.setVersion(getLastVersion(documentDto).getVersion() + 1);
+            }
             statement.setString(1, concreteDocumentDto.getName());
             statement.setString(2, concreteDocumentDto.getDescription());
             statement.setLong(3, concreteDocumentDto.getVersion());
@@ -56,7 +73,7 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
 
                 DocumentDaoImpl documentDao = new DocumentDaoImpl();
                 documentDao.modifyDocument(documentDto, concreteDocumentDto);
-                return concreteDocumentDto;
+                return getById(id);
             }
         } catch (SQLException e) {
             log.error(e.getMessage());

@@ -27,33 +27,18 @@ public class DocumentService {
 
 
 
-    public ConcreteDocumentDto saveNewDocument(String name,
-            PriorityEnum priorityEnum,
-            Long documentTypeId,
-            String description,
-            Long version,
-            List<FilePathDto> listOfFilePath,
-            CatalogueDto catalogueDto){
+    public ConcreteDocumentDto saveNewDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto){
 
-        DocumentDto documentDto = DocumentDto.builder()
-                .name(name)
-                .documentType(documentTypeId)
-                .priority(priorityEnum)
-                .parent_id(catalogueDto.getParent_id()).build();
-
+        CatalogueDto catalogueDto = CatalogueDto.builder().id(documentDto.getParent_id()).build();
         documentDto = documentDao.addNewDocument(documentDto, catalogueDto);
 
-        ConcreteDocumentDto concreteDocumentDto = ConcreteDocumentDto.builder()
-                .data(listOfFilePath)
-                .version(version)
-                .description(description)
-                .name(name)
-                .parent_id(documentDto.getId())
-                .build();
-
-        concreteDocumentDao.addNewVersion(documentDto, concreteDocumentDto);
-        return concreteDocumentDto;
+        return concreteDocumentDao.addNewVersion(documentDto, concreteDocumentDto);
     }
+
+    public List<ConcreteDocumentDto> getAllVersions(DocumentDto documentDto){
+        return concreteDocumentDao.getAllVersions(documentDto);
+    }
+
 
     public ConcreteDocumentDto modifyDocument(ConcreteDocumentDto concreteDocumentDto){
         DocumentDto documentDto = DocumentDto.builder().id(concreteDocumentDto.getParent_id()).build();
