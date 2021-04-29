@@ -1,6 +1,7 @@
 package com.github.dimka9910.documents.jdbc;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

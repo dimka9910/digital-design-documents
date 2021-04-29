@@ -8,7 +8,7 @@ import java.util.List;
 public interface FilePathDao extends AbstractDao{
     List<FilePathDto> getAllFilePathOfConcreteDocument(ConcreteDocumentDto concreteDocumentDto);
     FilePathDto addNewFilePathOfConcreteDocument(FilePathDto filePathDto, ConcreteDocumentDto concreteDocumentDto);
-    void deleteFilePath (FilePathDto filePathDto);
+    Long deleteFilePath (FilePathDto filePathDto);
 
     FilePathDto getById(Long id);
 }

@@ -1,5 +1,6 @@
 package com.github.dimka9910.documents.dto.files;
 
+import com.github.dimka9910.documents.dto.AbstractDto;
 import com.github.dimka9910.documents.dto.user.UserDto;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public abstract class FileAbstractDto {
+public abstract class FileAbstractDto implements AbstractDto {
     protected Long id;
     protected Long parent_id;
     protected Timestamp created_time;

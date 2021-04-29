@@ -2,38 +2,33 @@ package com.github.dimka9910.documents.service.service;
 
 import com.github.dimka9910.documents.dao.*;
 import com.github.dimka9910.documents.jdbc.implementation.*;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
-
+@Component
+@NoArgsConstructor
+@Data
 public class DaoFactory {
-
-    public static DaoFactory daoFactory;
-    @Getter
+    @Autowired
+    @Qualifier("catalogueDaoImpl")
     private CatalogueDao catalogueDao;
-    @Getter
+    @Autowired
+    @Qualifier("concreteDocumentDaoImpl")
     private ConcreteDocumentDao concreteDocumentDao;
-    @Getter
+    @Autowired
+    @Qualifier("documentDaoImpl")
     private DocumentDao documentDao;
-    @Getter
+    @Autowired
+    @Qualifier("documentTypeDaoImpl")
     private DocumentTypeDao documentTypeDao;
-    @Getter
+    @Autowired
+    @Qualifier("filePathDaoImpl")
     private FilePathDao filePathDao;
-    @Getter
+    @Autowired
+    @Qualifier("userDaoImpl")
     private UserDao userDao;
-
-    private DaoFactory() {
-        this.catalogueDao = new CatalogueDaoImpl();
-        this.concreteDocumentDao = new ConcreteDocumentDaoImpl();
-        this.documentDao = new DocumentDaoImpl();
-        this.documentTypeDao = new DocumentTypeDaoImpl();
-        this.filePathDao = new FilePathDaoImpl();
-        this.userDao = new UserDaoImpl();
-    }
-
-    public static DaoFactory getInstance(String str){
-        if (daoFactory == null){
-            daoFactory = new DaoFactory();
-        }
-        return daoFactory;
-    }
 }

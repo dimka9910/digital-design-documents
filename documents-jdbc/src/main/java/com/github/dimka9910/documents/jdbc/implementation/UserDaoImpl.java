@@ -6,12 +6,14 @@ import com.github.dimka9910.documents.dto.user.UserDto;
 import com.github.dimka9910.documents.dto.user.UserRolesEnum;
 import com.github.dimka9910.documents.jdbc.DbConnection;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 
 @Slf4j
+@Component("userDaoImpl")
 public class UserDaoImpl implements UserDao, BasicRequests {
     Connection cn = DbConnection.getConnection();
 
@@ -69,13 +71,14 @@ public class UserDaoImpl implements UserDao, BasicRequests {
     }
 
     @Override
-    public void deleteUser(UserDto userDto) {
+    public Long deleteUser(UserDto userDto) {
         String stringQuery = "DELETE FROM USERS WHERE id = ?";
         try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
             statement.setLong(1, userDto.getId());
-            statement.executeUpdate();
+            return (long) statement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
+        return 0L;
     }
 }

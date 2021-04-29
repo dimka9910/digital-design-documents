@@ -11,14 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DocumentTesting {
-    public static CatalogueService catalogueService = new CatalogueService();
-    public static DocumentService documentService = new DocumentService();
+    //public static CatalogueService catalogueService = new CatalogueService();
+    //public static DocumentService documentService = new DocumentService();
 
-    public static void getAllTypes(){
-        documentService.getAllDocumentTypes().forEach(System.out::println);
-    }
-
-    public static void addNewDocument(){
+//    public static void getAllTypes(){
+//        documentService.getAllDocumentTypes().forEach(System.out::println);
+//    }
+//
+//    public static void addNewDocument(){
 //        CatalogueTesting.inner(6L);
 //
 //        System.out.println();
@@ -50,13 +50,13 @@ public class DocumentTesting {
 //
 //        CatalogueTesting.inner(1L);
 
-    }
-
-
-    public static void main(String[] args) {
-        //getAllTypes();
-        //CatalogueTesting.inner(4L);
-        addNewDocument();
-
-    }
+//    }
+//
+//
+//    public static void main(String[] args) {
+//        //getAllTypes();
+//        //CatalogueTesting.inner(4L);
+//        addNewDocument();
+//
+//    }
 }

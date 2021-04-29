@@ -6,15 +6,21 @@ import com.github.dimka9910.documents.dto.files.TypeOfFileEnum;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
+import com.github.dimka9910.documents.dto.files.documents.FilePathDto;
 import com.github.dimka9910.documents.jdbc.DbConnection;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.List;
 
 @Slf4j
+@Component("concreteDocumentDaoImpl")
 public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicRequests {
     Connection cn = DbConnection.getConnection();
+    @Autowired
+    FilePathDao filePathDaoImpl;
 
     @Override
     public ConcreteDocumentDto parser(ResultSet resultSet) throws SQLException {
@@ -24,11 +30,17 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
         Long version = resultSet.getLong("version");
         Timestamp modified_time = resultSet.getTimestamp("modified_time");
         Long parent_id = resultSet.getLong("parent_id");
+        List<FilePathDto> list = filePathDaoImpl
+                .getAllFilePathOfConcreteDocument(ConcreteDocumentDto.builder().id(id).build());
+
+//        log.info("------" + list.size());
+
         return ConcreteDocumentDto.builder()
                 .id(id)
                 .name(name)
                 .description(description)
                 .version(version)
+                .data(list)
                 .modified_time(modified_time)
                 .parent_id(parent_id)
                 .build();
@@ -42,7 +54,7 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
-        return ConcreteDocumentDto.builder().build();
+        return null;
     }
 
     @Override
@@ -53,7 +65,7 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
         FilePathDaoImpl filePathDao = new FilePathDaoImpl();
         try (PreparedStatement statement = cn.prepareStatement(stringQuery, Statement.RETURN_GENERATED_KEYS)) {
             if (concreteDocumentDto.getVersion() == null) {
-                if (getLastVersion(documentDto).getVersion() == null)
+                if (getLastVersion(documentDto) == null)
                     concreteDocumentDto.setVersion(1L);
                 else
                     concreteDocumentDto.setVersion(getLastVersion(documentDto).getVersion() + 1);
@@ -95,8 +107,7 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
         } catch (Exception ignored) {
 
         }
-
-        return ConcreteDocumentDto.builder().build();
+        return null;
     }
 
     @Override
@@ -114,14 +125,15 @@ public class ConcreteDocumentDaoImpl implements ConcreteDocumentDao, BasicReques
     }
 
     @Override
-    public void deleteConcreteDocument(ConcreteDocumentDto concreteDocumentDto) {
+    public Long deleteConcreteDocument(ConcreteDocumentDto concreteDocumentDto) {
         String stringQuery = "DELETE FROM CONCRETE_DOCUMENT WHERE id = ?";
         try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
             statement.setLong(1, concreteDocumentDto.getId());
-            statement.executeUpdate();
+            return (long) statement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
+        return 0L;
     }
 
 }

@@ -8,6 +8,7 @@ import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.PriorityEnum;
 import com.github.dimka9910.documents.jdbc.DbConnection;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import javax.print.Doc;
 import java.sql.*;
@@ -15,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Slf4j
+@Component("documentDaoImpl")
 public class DocumentDaoImpl implements DocumentDao, BasicRequests {
     Connection cn = DbConnection.getConnection();
 
@@ -107,14 +109,15 @@ public class DocumentDaoImpl implements DocumentDao, BasicRequests {
     }
 
     @Override
-    public void deleteDocument(DocumentDto documentDto) {
+    public Long deleteDocument(DocumentDto documentDto) {
         String stringQuery = "DELETE FROM DOCUMENT WHERE id = ?";
         try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
             statement.setLong(1, documentDto.getId());
-            statement.executeUpdate();
+            return (long) statement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
+        return 0L;
     }
 
 

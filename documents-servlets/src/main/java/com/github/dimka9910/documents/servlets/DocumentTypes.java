@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -25,9 +26,15 @@ import java.util.Iterator;
 @Slf4j
 public class DocumentTypes extends HttpServlet implements DefaultMethods {
 
-    private Gson gson = new Gson();
-    CatalogueService catalogueService = new CatalogueService();
-    DocumentService documentService = new DocumentService();
+    private Gson gson;
+    CatalogueService catalogueService;
+    DocumentService documentService;
+    @Override
+    public void init() throws ServletException {
+        gson = new Gson();
+        catalogueService = TemporaryContextGetter.getContext().getBean(CatalogueService.class);
+        documentService = TemporaryContextGetter.getContext().getBean(DocumentService.class);
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

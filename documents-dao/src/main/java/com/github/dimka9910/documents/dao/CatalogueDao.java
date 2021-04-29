@@ -17,5 +17,5 @@ public interface CatalogueDao extends AbstractDao{
 
     CatalogueDto modifyCatalogue(CatalogueDto catalogueDto);
 
-    void deleteCatalogue(CatalogueDto catalogueDto);
+    Long deleteCatalogue(CatalogueDto catalogueDto);
 }

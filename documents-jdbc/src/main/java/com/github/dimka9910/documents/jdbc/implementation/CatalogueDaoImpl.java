@@ -8,6 +8,7 @@ import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentTypeDto;
 import com.github.dimka9910.documents.jdbc.DbConnection;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.Date;
@@ -15,7 +16,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Slf4j
+@Component("catalogueDaoImpl")
 public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
+
     Connection cn = DbConnection.getConnection();
 
     public CatalogueDto parser(ResultSet catalogueResult) throws SQLException {
@@ -41,7 +44,7 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
-        return CatalogueDto.builder().build();
+        return null;
     }
 
     @Override
@@ -52,7 +55,7 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
-        return CatalogueDto.builder().build();
+        return null;
     }
 
     @Override
@@ -77,7 +80,7 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
                 "       D.priority as priority, document_type_id, D.created_time, D.parent_id FROM CATALOGUE\n" +
                 "JOIN DOCUMENT D on CATALOGUE.id = D.parent_id WHERE CATALOGUE.id = ? ORDER BY D.created_time";
 
-        List<FileAbstractDto> list = new LinkedList<>();
+        List<FileAbstractDto> list = List.of();
         try {
             DocumentDaoImpl documentDao = new DocumentDaoImpl();
             list = getList(stringQueryCatalogue, cn, catalogueDto.getId());
@@ -90,7 +93,6 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
 
     @Override
     public CatalogueDto addCatalogue(CatalogueDto catalogueDto, CatalogueDto parent) {
-
         String insert1 = "INSERT INTO CATALOGUE (name, parent_id, created_time) VALUES (?,?,?)";
         try (PreparedStatement preparedStatement = cn.prepareStatement(insert1, Statement.RETURN_GENERATED_KEYS)){
             preparedStatement.setString(1, catalogueDto.getName());
@@ -108,30 +110,31 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
         } catch(SQLException e){
             log.error(e.getMessage());
         }
-        return CatalogueDto.builder().id(0L).build();
+        return null;
     }
 
     @Override
     public CatalogueDto modifyCatalogue(CatalogueDto catalogueDto) {
         String stringQuery = "UPDATE CATALOGUE SET name = ? WHERE id = ?";
-        try (PreparedStatement statement = cn.prepareStatement(stringQuery, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
             statement.setString(1, catalogueDto.getName());
             statement.setLong(2, catalogueDto.getId());
-            statement.executeUpdate();
+            Long i = (long) statement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
-        return catalogueDto;
+        return getCatalogueById(catalogueDto.getId());
     }
 
     @Override
-    public void deleteCatalogue(CatalogueDto catalogueDto) {
+    public Long deleteCatalogue(CatalogueDto catalogueDto) {
         String stringQuery = "DELETE FROM CATALOGUE WHERE id = ?";
         try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
             statement.setLong(1, catalogueDto.getId());
-            statement.executeUpdate();
+            return (long) statement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
+        return 0L;
     }
 }

@@ -14,6 +14,7 @@ public interface BasicRequests<T> {
     default List<T> getList(String stringQuery, Connection cn, Long ... id) throws SQLException {
         List<T> list = new LinkedList<>();
         try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
+
             for (int i = 0; i < statement.getParameterMetaData().getParameterCount(); i++){
                 statement.setLong(i + 1, id[0]);
             }
@@ -28,7 +29,6 @@ public interface BasicRequests<T> {
     }
 
     default T getOne(String stringQuery, Connection cn, Long ... id) throws SQLException {
-        List<T> list = new LinkedList<>();
         try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
             for (int i = 0; i < statement.getParameterMetaData().getParameterCount(); i++) {
                 statement.setLong(i + 1, id[0]);
@@ -37,7 +37,6 @@ public interface BasicRequests<T> {
                 if (result.next()) {
                     return parser(result);
                 }
-//                return parser(null);
             }
         }
         throw new SQLException("NOT FOUND!!");
