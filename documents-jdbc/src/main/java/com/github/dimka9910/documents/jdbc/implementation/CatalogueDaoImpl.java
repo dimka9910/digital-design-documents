@@ -38,7 +38,7 @@ public class CatalogueDaoImpl implements CatalogueDao, BasicRequests {
 
     @Override
     public CatalogueDto getRootCatalogue() {
-        String stringQuery = "SELECT * FROM CATALOGUE WHERE parent_id = id";
+        String stringQuery = "select * from CATALOGUE WHERE parent_id is null";
         try {
             return (CatalogueDto) getOne(stringQuery, cn);
         } catch (SQLException e) {

@@ -103,4 +103,6 @@ CREATE TABLE IF NOT EXISTS DOCUMENT
 
 INSERT INTO CATALOGUE (name, created_time, parent_id) VALUES ('name', '2000-12-16 12:21:13', 11);
 
-select * from CATALOGUE;
+select * from CATALOGUE WHERE parent_id is null;
+
+

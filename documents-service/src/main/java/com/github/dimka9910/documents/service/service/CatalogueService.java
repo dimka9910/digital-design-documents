@@ -58,7 +58,7 @@ public class CatalogueService {
 
     public CatalogueDto modifyCatalogue(Long id, String name){
         if (id != catalogueDao.getRootCatalogue().getId())
-            catalogueDao.modifyCatalogue(CatalogueDto.builder().name(name).id(id).build());
+            return catalogueDao.modifyCatalogue(CatalogueDto.builder().name(name).id(id).build());
         return catalogueDao.getCatalogueById(id);
     }
 
