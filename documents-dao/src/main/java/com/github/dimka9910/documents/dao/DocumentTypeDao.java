@@ -12,5 +12,5 @@ public interface DocumentTypeDao extends AbstractDao{
 
     DocumentTypeDto getDocumentTypeById(Long id);
 
-    void deleteDocumentType(DocumentTypeDto documentTypeDto);
+    Long deleteDocumentType(DocumentTypeDto documentTypeDto);
 }

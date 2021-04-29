@@ -1,6 +1,9 @@
 package com.github.dimka9910.documents.servlets;
 
 import com.google.gson.Gson;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,5 +27,17 @@ public interface DefaultMethods {
         while ((line = reader.readLine()) != null)
             jb.append(line);
         return jb;
+    }
+
+    default String toJson(CloseableHttpResponse response) throws IOException {
+        HttpEntity entity = response.getEntity();
+        String res = "";
+        if (entity != null) {
+            InputStream instream = entity.getContent();
+            byte[] bytes = IOUtils.toByteArray(instream);
+            res = new String(bytes, "UTF-8");
+            instream.close();
+        }
+        return res;
     }
 }

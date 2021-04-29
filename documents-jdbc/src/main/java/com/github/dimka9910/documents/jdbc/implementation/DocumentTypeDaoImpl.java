@@ -6,12 +6,14 @@ import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentTypeDto;
 import com.github.dimka9910.documents.jdbc.DbConnection;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 
 @Slf4j
+@Component("documentTypeDaoImpl")
 public class DocumentTypeDaoImpl implements DocumentTypeDao, BasicRequests {
     Connection cn = DbConnection.getConnection();
 
@@ -33,7 +35,7 @@ public class DocumentTypeDaoImpl implements DocumentTypeDao, BasicRequests {
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
-        return DocumentTypeDto.builder().build();
+        return null;
     }
 
     @Override
@@ -81,17 +83,18 @@ public class DocumentTypeDaoImpl implements DocumentTypeDao, BasicRequests {
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
-        return DocumentTypeDto.builder().build();
+        return null;
     }
 
     @Override
-    public void deleteDocumentType(DocumentTypeDto documentTypeDto) {
+    public Long deleteDocumentType(DocumentTypeDto documentTypeDto) {
         String stringQuery = "DELETE FROM DOCUMENT_TYPE WHERE id = ?";
         try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
             statement.setLong(1, documentTypeDto.getId());
-            statement.executeUpdate();
+            return (long) statement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
+        return 0L;
     }
 }

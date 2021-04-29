@@ -15,5 +15,5 @@ public interface DocumentDao extends AbstractDao {
 
     DocumentDto modifyDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto);
 
-    void deleteDocument(DocumentDto documentDto);
+    Long deleteDocument(DocumentDto documentDto);
 }

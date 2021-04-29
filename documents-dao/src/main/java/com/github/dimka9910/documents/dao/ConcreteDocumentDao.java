@@ -13,5 +13,5 @@ public interface ConcreteDocumentDao extends AbstractDao{
 
     ConcreteDocumentDto getById(Long id);
 
-    void deleteConcreteDocument(ConcreteDocumentDto catalogueDto);
+    Long deleteConcreteDocument(ConcreteDocumentDto catalogueDto);
 }

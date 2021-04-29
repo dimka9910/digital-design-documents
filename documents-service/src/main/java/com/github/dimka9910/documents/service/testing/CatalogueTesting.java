@@ -1,12 +1,19 @@
 package com.github.dimka9910.documents.service.testing;
 
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
+import com.github.dimka9910.documents.service.ServiceConfig;
 import com.github.dimka9910.documents.service.service.CatalogueService;
 import com.github.dimka9910.documents.service.service.DocumentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
+
 
 public class CatalogueTesting {
-    public static CatalogueService catalogueService = new CatalogueService();
-    public static DocumentService documentService = new DocumentService();
+    static ApplicationContext ctx = new AnnotationConfigApplicationContext(ServiceConfig.class);
+    static CatalogueService catalogueService = ctx.getBean(CatalogueService.class);
+    static DocumentService documentService = ctx.getBean(DocumentService.class);
 
     public static void root() {
         CatalogueDto catalogueDto;
@@ -42,10 +49,10 @@ public class CatalogueTesting {
     }
 
     public static void main(String[] args) {
-//        root();
+        root();
 //        inner(1L);
 //        modify();
-       creation(1L);
+       //creation(1L);
 
     }
 

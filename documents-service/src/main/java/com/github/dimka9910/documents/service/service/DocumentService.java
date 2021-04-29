@@ -5,13 +5,25 @@ import com.github.dimka9910.documents.dao.DocumentDao;
 import com.github.dimka9910.documents.dao.DocumentTypeDao;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component("documentService")
 public class DocumentService {
-    private DocumentDao documentDao = DaoFactory.getInstance("").getDocumentDao();
-    private ConcreteDocumentDao concreteDocumentDao = DaoFactory.getInstance("").getConcreteDocumentDao();
-    private DocumentTypeDao documentTypeDao = DaoFactory.getInstance("").getDocumentTypeDao();
+
+    private DocumentDao documentDao;
+    private ConcreteDocumentDao concreteDocumentDao;
+    private DocumentTypeDao documentTypeDao;
+    private DaoFactory daoFactory;
+
+    public DocumentService(DaoFactory daoFactory) {
+        this.daoFactory = daoFactory;
+        concreteDocumentDao = daoFactory.getConcreteDocumentDao();
+        documentDao = daoFactory.getDocumentDao();
+        documentTypeDao = daoFactory.getDocumentTypeDao();
+    }
 
     public DocumentDto getDocumentById(Long id){
         return documentDao.getDocumentById(id);
@@ -24,8 +36,6 @@ public class DocumentService {
     public List<ConcreteDocumentDto> getAllVersionsById(Long id){
         return concreteDocumentDao.getAllVersions(documentDao.getDocumentById(id));
     }
-
-
 
     public ConcreteDocumentDto saveNewDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto){
 

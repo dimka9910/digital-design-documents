@@ -4,14 +4,27 @@ import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.PriorityEnum;
 import com.github.dimka9910.documents.service.service.CatalogueService;
 import com.github.dimka9910.documents.service.service.DocumentService;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.List;
 
 public class MainTestClass {
 
     public static void main(String[] args) {
-        CatalogueService catalogueService = new CatalogueService();
-        DocumentService documentService = new DocumentService();
+
+        ApplicationContext context = new AnnotationConfigApplicationContext(ServiceConfig.class);
+
+        CatalogueService catalogueService = context.getBean(CatalogueService.class);
+
+//        System.out.println(catalogueService.modifyCatalogue(1L, "root1"));
+
+//        System.out.println(catalogueService.getInnerCataloguesAndDocuments(1L));
+        System.out.println(catalogueService.getInnerCataloguesAndDocuments(1L));
+
+//        System.out.println(catalogueService.getCatalogueById(1L));
+//        ApplicationContext context = ApplicationContextHolder.getContext();
+//        context.getBean(CatalogueService.class);
 
 
 //        System.out.println();

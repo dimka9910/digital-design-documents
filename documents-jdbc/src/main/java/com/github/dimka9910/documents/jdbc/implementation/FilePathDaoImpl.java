@@ -7,11 +7,13 @@ import com.github.dimka9910.documents.dto.files.documents.DocumentTypeDto;
 import com.github.dimka9910.documents.dto.files.documents.FilePathDto;
 import com.github.dimka9910.documents.jdbc.DbConnection;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.List;
 
 @Slf4j
+@Component("filePathDaoImpl")
 public class FilePathDaoImpl implements FilePathDao, BasicRequests {
     Connection cn = DbConnection.getConnection();
 
@@ -35,15 +37,15 @@ public class FilePathDaoImpl implements FilePathDao, BasicRequests {
         } catch (SQLException e){
             log.error(e.getMessage());
         }
-        return FilePathDto.builder().build();
+        return null;
     }
 
     @Override
     public List<FilePathDto> getAllFilePathOfConcreteDocument(ConcreteDocumentDto concreteDocumentDto) {
-        String stringQuery = "SELECT id, filepath, parent_id\n" +
+        String stringQuery = "SELECT FILE_PATH.id, FILE_PATH.filepath, FILE_PATH.parent_id\n" +
                 "FROM FILE_PATH\n" +
                 "JOIN CONCRETE_DOCUMENT CD on CD.id = FILE_PATH.parent_id " +
-                "WHERE parent_id = ?";
+                "WHERE FILE_PATH.parent_id = ?";
         List<FilePathDto> list = List.of();
         try {
             list = getList(stringQuery, cn, concreteDocumentDto.getId());
@@ -75,13 +77,14 @@ public class FilePathDaoImpl implements FilePathDao, BasicRequests {
     }
 
     @Override
-    public void deleteFilePath(FilePathDto filePathDto) {
+    public Long deleteFilePath(FilePathDto filePathDto) {
         String stringQuery = "DELETE FROM FILE_PATH WHERE id = ?";
         try (PreparedStatement statement = cn.prepareStatement(stringQuery)) {
             statement.setLong(1, filePathDto.getId());
-            statement.executeUpdate();
+            return (long) statement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
+        return 0L;
     }
 }
