@@ -27,11 +27,7 @@ class CatalogueChildrenTest extends TestCase implements DefaultMethods {
     public void test() throws IOException {
         HttpGet get = new HttpGet("http://localhost:8080//catalogue/children?id=1");
         CloseableHttpResponse response = httpClient.execute(get);
-        String res = toJson(response);
-        System.out.println(res);
-        CatalogueDto catalogueDto = (CatalogueDto) gson.fromJson(res, CatalogueDto.class);
-        System.out.println(catalogueDto);
-        Assert.assertTrue(catalogueDto.getName().equals(rootName));
+        Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
     }
 
 }

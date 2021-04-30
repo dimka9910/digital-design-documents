@@ -47,7 +47,7 @@ public class Catalogue extends HttpServlet implements DefaultMethods {
         if (catalogueDto == null)
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         else
-            printData(gson, catalogueService.getCatalogueById(id), resp);
+            printData(gson, catalogueDto, resp);
     }
 
     @Override
@@ -59,6 +59,7 @@ public class Catalogue extends HttpServlet implements DefaultMethods {
                 catalogueDto = catalogueService.modifyCatalogue(catalogueDto.getId(), catalogueDto.getName());
             else
                 catalogueDto = catalogueService.createCatalogue(catalogueDto, catalogueDto.getParent_id());
+
             printData(gson, catalogueDto, resp);
         } catch (JSONException e) {
             throw new IOException("Error parsing JSON request string");
