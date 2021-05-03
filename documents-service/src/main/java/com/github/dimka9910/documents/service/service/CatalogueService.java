@@ -2,19 +2,11 @@ package com.github.dimka9910.documents.service.service;
 
 import com.github.dimka9910.documents.dao.CatalogueDao;
 import com.github.dimka9910.documents.dao.ConcreteDocumentDao;
-import com.github.dimka9910.documents.dao.DocumentDao;
-import com.github.dimka9910.documents.dao.DocumentTypeDao;
 import com.github.dimka9910.documents.dto.files.FileAbstractDto;
-import com.github.dimka9910.documents.dto.files.TypeOfFileEnum;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
-import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
-import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
-import com.github.dimka9910.documents.service.Exceprions.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 
 @Component("catalogueService")
 public class CatalogueService {
