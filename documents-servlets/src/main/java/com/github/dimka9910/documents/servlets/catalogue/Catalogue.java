@@ -52,18 +52,14 @@ public class Catalogue extends HttpServlet implements DefaultMethods {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            StringBuffer jb = getBody(request);
-            CatalogueDto catalogueDto = (CatalogueDto) gson.fromJson(jb.toString(), CatalogueDto.class);
-            if (catalogueDto.getId() != null)
-                catalogueDto = catalogueService.modifyCatalogue(catalogueDto.getId(), catalogueDto.getName());
-            else
-                catalogueDto = catalogueService.createCatalogue(catalogueDto, catalogueDto.getParent_id());
+        StringBuffer jb = getBody(request);
+        CatalogueDto catalogueDto = (CatalogueDto) gson.fromJson(jb.toString(), CatalogueDto.class);
+        if (catalogueDto.getId() != null)
+            catalogueDto = catalogueService.modifyCatalogue(catalogueDto.getId(), catalogueDto.getName());
+        else
+            catalogueDto = catalogueService.createCatalogue(catalogueDto, catalogueDto.getParent_id());
 
-            printData(gson, catalogueDto, resp);
-        } catch (JSONException e) {
-            throw new IOException("Error parsing JSON request string");
-        }
+        printData(gson, catalogueDto, resp);
     }
 
     @Override

@@ -12,12 +12,10 @@ import java.util.List;
 public class CatalogueService {
 
     private CatalogueDao catalogueDao;
-    private ConcreteDocumentDao concreteDocumentDao;
     private DaoFactory daoFactory;
 
     public CatalogueService(DaoFactory daoFactory) {
         this.daoFactory = daoFactory;
-        concreteDocumentDao = daoFactory.getConcreteDocumentDao();
         catalogueDao = daoFactory.getCatalogueDao();
     }
 

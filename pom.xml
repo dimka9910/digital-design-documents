@@ -16,7 +16,6 @@
         <module>documents-service</module>
         <module>documents-servlets</module>
         <module>documents-jpa</module>
-        <module>documents-jpa2</module>
     </modules>
 
     <properties>

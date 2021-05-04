@@ -16,14 +16,16 @@ import java.util.Set;
 @Data
 public class DocumentDto extends FileAbstractDto {
     private Long documentType;
+    private String documentTypeName;
     private PriorityEnum priority;
     private ConcreteDocumentDto topVersionDocument;
     private List<Long> versionsOfDocuments;
 
     @Builder
-    public DocumentDto(Long id, Long parent_id, Timestamp created_time, UserDto created_by, Set<UserDto> readWritePermissionedUsers, Set<UserDto> readPermissionedUsers, String name, TypeOfFileEnum typeOfFile, Long documentType, PriorityEnum priority, ConcreteDocumentDto topVersionDocument, List<Long> versionsOfDocuments) {
+    public DocumentDto(Long id, Long parent_id, Timestamp created_time, Long created_by, List<Long> readWritePermissionedUsers, List<Long> readPermissionedUsers, String name, TypeOfFileEnum typeOfFile, Long documentType, String documentTypeName, PriorityEnum priority, ConcreteDocumentDto topVersionDocument, List<Long> versionsOfDocuments) {
         super(id, parent_id, created_time, created_by, readWritePermissionedUsers, readPermissionedUsers, name, typeOfFile);
         this.documentType = documentType;
+        this.documentTypeName = documentTypeName;
         this.priority = priority;
         this.topVersionDocument = topVersionDocument;
         this.versionsOfDocuments = versionsOfDocuments;

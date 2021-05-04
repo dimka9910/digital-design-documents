@@ -14,21 +14,13 @@ import org.springframework.stereotype.Component;
 @Data
 public class DaoFactory {
     @Autowired
-    @Qualifier("catalogueDaoImpl")
     private CatalogueDao catalogueDao;
     @Autowired
-    @Qualifier("concreteDocumentDaoImpl")
     private ConcreteDocumentDao concreteDocumentDao;
     @Autowired
-    @Qualifier("documentDaoImpl")
     private DocumentDao documentDao;
     @Autowired
-    @Qualifier("documentTypeDaoImpl")
     private DocumentTypeDao documentTypeDao;
     @Autowired
-    @Qualifier("filePathDaoImpl")
-    private FilePathDao filePathDao;
-    @Autowired
-    @Qualifier("userDaoImpl")
     private UserDao userDao;
 }

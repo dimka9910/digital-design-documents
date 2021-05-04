@@ -48,19 +48,15 @@ public class Document extends HttpServlet implements DefaultMethods {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            log.info("------ concreteDocumentDto.getData().size()");
+        log.info("------ concreteDocumentDto.getData().size()");
 
-            StringBuffer jb = getBody(request);
-            DocumentDto documentDto = (DocumentDto) gson.fromJson(jb.toString(), DocumentDto.class);
-            ConcreteDocumentDto concreteDocumentDto = (ConcreteDocumentDto) gson.fromJson(jb.toString(), ConcreteDocumentDto.class);
-            concreteDocumentDto = documentService.saveNewDocument(documentDto, concreteDocumentDto);
-            documentDto.setTopVersionDocument(concreteDocumentDto);
-            documentDto.setId(concreteDocumentDto.getParent_id());
-            printData(gson, documentDto, resp);
-        } catch (JSONException e) {
-            throw new IOException("Error parsing JSON request string");
-        }
+        StringBuffer jb = getBody(request);
+        DocumentDto documentDto = (DocumentDto) gson.fromJson(jb.toString(), DocumentDto.class);
+        ConcreteDocumentDto concreteDocumentDto = (ConcreteDocumentDto) gson.fromJson(jb.toString(), ConcreteDocumentDto.class);
+        concreteDocumentDto = documentService.saveNewDocument(documentDto, concreteDocumentDto);
+        documentDto.setTopVersionDocument(concreteDocumentDto);
+        documentDto.setId(concreteDocumentDto.getParent_id());
+        printData(gson, documentDto, resp);
     }
 
     @Override

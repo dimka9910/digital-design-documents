@@ -18,7 +18,7 @@ public class ConcreteDocumentDto implements AbstractDto {
     private String description;
     private Long version;
     private Timestamp modified_time;
-    private UserDto modified_by;
+    private Long modified_by;
     private Long parent_id;
     private List<FilePathDto> data;
 }

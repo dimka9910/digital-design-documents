@@ -13,13 +13,11 @@ import java.util.List;
 @Component("documentService")
 public class DocumentService {
 
-    private DocumentDao documentDao;
-    private ConcreteDocumentDao concreteDocumentDao;
-    private DocumentTypeDao documentTypeDao;
-    private DaoFactory daoFactory;
+    private final DocumentDao documentDao;
+    private final ConcreteDocumentDao concreteDocumentDao;
+    private final DocumentTypeDao documentTypeDao;
 
     public DocumentService(DaoFactory daoFactory) {
-        this.daoFactory = daoFactory;
         concreteDocumentDao = daoFactory.getConcreteDocumentDao();
         documentDao = daoFactory.getDocumentDao();
         documentTypeDao = daoFactory.getDocumentTypeDao();
