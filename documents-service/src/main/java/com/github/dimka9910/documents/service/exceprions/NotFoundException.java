@@ -1,4 +1,4 @@
-package com.github.dimka9910.documents.service.Exceprions;
+package com.github.dimka9910.documents.service.exceprions;
 
 
 import org.springframework.http.HttpStatus;

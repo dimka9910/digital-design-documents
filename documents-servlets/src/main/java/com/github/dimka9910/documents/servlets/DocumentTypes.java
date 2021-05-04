@@ -43,13 +43,9 @@ public class DocumentTypes extends HttpServlet implements DefaultMethods {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            StringBuffer jb = getBody(request);
-            DocumentTypeDto documentTypeDto = (DocumentTypeDto) gson.fromJson(jb.toString(), DocumentTypeDto.class);
-            documentTypeDto = documentService.addDocumentType(documentTypeDto.getName());
-            printData(gson, documentTypeDto, resp);
-        } catch (JSONException e) {
-            throw new IOException("Error parsing JSON request string");
-        }
+        StringBuffer jb = getBody(request);
+        DocumentTypeDto documentTypeDto = (DocumentTypeDto) gson.fromJson(jb.toString(), DocumentTypeDto.class);
+        documentTypeDto = documentService.addDocumentType(documentTypeDto.getName());
+        printData(gson, documentTypeDto, resp);
     }
 }

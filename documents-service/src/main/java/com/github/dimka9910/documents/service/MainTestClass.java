@@ -17,41 +17,9 @@ public class MainTestClass {
 
         CatalogueService catalogueService = context.getBean(CatalogueService.class);
 
-//        System.out.println(catalogueService.modifyCatalogue(1L, "root1"));
+        catalogueService.getInnerCataloguesAndDocuments(1L).forEach(System.out::println);
 
-//        System.out.println(catalogueService.getInnerCataloguesAndDocuments(1L));
-        System.out.println(catalogueService.getInnerCataloguesAndDocuments(1L));
-
-//        System.out.println(catalogueService.getCatalogueById(1L));
-//        ApplicationContext context = ApplicationContextHolder.getContext();
-//        context.getBean(CatalogueService.class);
-
-
-//        System.out.println();
-//        System.out.println(documentService.openDocumentById(1L));
-
-//        System.out.println(catalogueService.getCatalogueById(1L));
-
-//        System.out.println(catalogueService.getInnerCataloguesAndDocuments(1L));
-
-//        System.out.println();
-
-//        documentService.saveNewDocument("new12345",
-//                PriorityEnum.DEFAULT, 1L,
-//                "descr", 1L, List.of(), catalogueService.getCatalogueById(2L));
-
-//        catalogueService.getInnerCataloguesAndDocuments(2L).forEach(System.out::println);
-//
-//        System.out.println(documentService.openDocumentById(5L));
-//
-//        ConcreteDocumentDto concreteDocumentDto = documentService.openDocumentById(5L);
-//
-//        System.out.println(concreteDocumentDto);
-//        concreteDocumentDto.setDescription("new Descr");
-//        concreteDocumentDto.setVersion(2L);
-//        documentService.modifyDocument(concreteDocumentDto);
-//
-//        System.out.println(documentService.openDocumentById(5L));
+//        System.out.println(catalogueService.getCatalogueById(null));
 
     }
 }

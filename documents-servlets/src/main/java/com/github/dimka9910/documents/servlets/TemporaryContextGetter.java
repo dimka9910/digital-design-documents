@@ -19,7 +19,6 @@ public class TemporaryContextGetter {
     public static ApplicationContext getContext() {
         if (tcg == null)
             tcg = new TemporaryContextGetter();
-
         return context;
     }
 }

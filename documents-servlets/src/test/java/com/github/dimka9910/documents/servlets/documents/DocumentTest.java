@@ -69,43 +69,43 @@ public class DocumentTest extends TestCase implements DefaultMethods {
         Assert.assertEquals(documentDto, documentDto);
     }
 
-    @Test
-    public void addAndDeleteDocument() throws IOException {
-        HttpPost post = new HttpPost("http://localhost:8080//document");
-
-        List<FilePathDto> list = new ArrayList<>();
-        list.add(FilePathDto.builder().path("path1").build());
-        list.add(FilePathDto.builder().path("path2").build());
-        list.add(FilePathDto.builder().path("path3").build());
-
-        String name = "test_doc0090";
-        Long documentType = 1L;
-        String descr = "test_doc_descr";
-        Long parentId = 1L;
-        PriorityEnum priorityEnum = PriorityEnum.LOW;
-
-        DocumentVisualizationDto document = DocumentVisualizationDto.builder()
-                .name(name)
-                .documentType(documentType)
-                .description(descr)
-                .data(list)
-                .parent_id(parentId)
-                .priority(priorityEnum)
-                .build();
-
-        StringEntity stringEntity = new StringEntity(mapper.writeValueAsString(document), ContentType.APPLICATION_JSON);
-        post.setEntity(stringEntity);
-
-        CloseableHttpResponse response = httpClient.execute(post);
-        String res = toJson(response);
-
-        DocumentDto documentDto = (DocumentDto) gson.fromJson(res, DocumentDto.class);
-        Assert.assertEquals(document.getName(), documentDto.getName());
-        Assert.assertEquals(document.getName(), documentDto.getTopVersionDocument().getName());
-        Assert.assertEquals(document.getData().size(), documentDto.getTopVersionDocument().getData().size());
-        Assert.assertEquals(Long.valueOf(1L), documentDto.getTopVersionDocument().getVersion());
-
-        documentService.deleteDocumentById(documentDto.getId());
-    }
+//    @Test
+//    public void addAndDeleteDocument() throws IOException {
+//        HttpPost post = new HttpPost("http://localhost:8080//document");
+//
+//        List<FilePathDto> list = new ArrayList<>();
+//        list.add(FilePathDto.builder().path("path1").build());
+//        list.add(FilePathDto.builder().path("path2").build());
+//        list.add(FilePathDto.builder().path("path3").build());
+//
+//        String name = "test_doc00901";
+//        Long documentType = 1L;
+//        String descr = "test_doc_desc1r";
+//        Long parentId = 1L;
+//        PriorityEnum priorityEnum = PriorityEnum.LOW;
+//
+//        DocumentVisualizationDto document = DocumentVisualizationDto.builder()
+//                .name(name)
+//                .documentType(documentType)
+//                .description(descr)
+//                .data(list)
+//                .parent_id(parentId)
+//                .priority(priorityEnum)
+//                .build();
+//
+//        StringEntity stringEntity = new StringEntity(mapper.writeValueAsString(document), ContentType.APPLICATION_JSON);
+//        post.setEntity(stringEntity);
+//
+//        CloseableHttpResponse response = httpClient.execute(post);
+//        String res = toJson(response);
+//
+//        DocumentDto documentDto = (DocumentDto) gson.fromJson(res, DocumentDto.class);
+//        Assert.assertEquals(document.getName(), documentDto.getName());
+//        Assert.assertEquals(document.getName(), documentDto.getTopVersionDocument().getName());
+//        Assert.assertEquals(document.getData().size(), documentDto.getTopVersionDocument().getData().size());
+//        Assert.assertEquals(Long.valueOf(1L), documentDto.getTopVersionDocument().getVersion());
+//
+//        documentService.deleteDocumentById(documentDto.getId());
+//    }
 
 }
