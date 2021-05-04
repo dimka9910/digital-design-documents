@@ -13,4 +13,5 @@ public interface ConcreteDocumentRepository extends JpaRepository<ConcreteDocume
     @Query(value = "SELECT cc FROM ConcreteDocument c INNER JOIN c.parent_id cc WHERE cc.id = ?1")
     List<ConcreteDocument> getAllVersions(@Param("idd") Long idd);
 
+
 }

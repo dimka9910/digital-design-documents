@@ -40,6 +40,7 @@ public class ConcreteDocumentDaoJpa implements ConcreteDocumentDao {
         concreteDocumentDto.setParent_id(documentDto.getId());
 
         ConcreteDocument concreteDocument = concreteDocumentParser.DTOtoE(concreteDocumentDto);
+        concreteDocument.setId(null);
 
         em.persist(concreteDocument);
         return concreteDocumentParser.EtoDTO(concreteDocument);
@@ -48,8 +49,9 @@ public class ConcreteDocumentDaoJpa implements ConcreteDocumentDao {
     @Override
     public ConcreteDocumentDto getLastVersion(DocumentDto documentDto) {
         try {
-            ConcreteDocument concreteDocument = (ConcreteDocument) em.createQuery("select max(c.version) from ConcreteDocument c INNER JOIN c.parent_id cc where cc.id = :idd")
+            ConcreteDocument concreteDocument = (ConcreteDocument) em.createQuery("select c from ConcreteDocument c INNER JOIN c.parent_id cc where cc.id = :idd ORDER BY c.version desc")
                     .setParameter("idd", documentDto.getId())
+                    .setMaxResults(1)
                     .getSingleResult();
             if (concreteDocument == null)
                 return null;

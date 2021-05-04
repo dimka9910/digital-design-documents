@@ -35,7 +35,7 @@ public class ConcreteDocumentParser {
                 .id(document.getId())
                 .parent_id(document.getParent_id().getId())
                 .version(document.getVersion())
-                .data(document.getData().stream().map(v -> FilePathDto.builder().path(v).build()).collect(Collectors.toList()))
+                .data(document.getData()==null ? null : document.getData().stream().map(v -> FilePathDto.builder().path(v).build()).collect(Collectors.toList()))
                 .modified_time(new Timestamp(document.getModified_time().getTime()))
                 .description(document.getDescription())
                 .modified_by(document.getModified_by() == null ? null : document.getModified_by().getId())
@@ -55,7 +55,7 @@ public class ConcreteDocumentParser {
                 new Date(),
                 user,
                 document,
-                concreteDocumentDto.getData().stream().map(v -> v.getPath()).collect(Collectors.toList())
+                concreteDocumentDto.getData() == null ? null : concreteDocumentDto.getData().stream().map(v -> v.getPath()).collect(Collectors.toList())
         );
     }
 
