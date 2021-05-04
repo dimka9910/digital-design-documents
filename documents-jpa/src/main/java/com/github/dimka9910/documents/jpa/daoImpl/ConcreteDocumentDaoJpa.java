@@ -5,6 +5,7 @@ import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
 import com.github.dimka9910.documents.jpa.entity.files.catalogues.Catalogue;
 import com.github.dimka9910.documents.jpa.entity.files.documents.ConcreteDocument;
+import com.github.dimka9910.documents.jpa.entity.files.documents.Document;
 import com.github.dimka9910.documents.jpa.entityParser.files.ConcreteDocumentParser;
 import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
 import com.github.dimka9910.documents.jpa.repository.ConcreteDocumentRepository;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Component
@@ -28,6 +30,7 @@ public class ConcreteDocumentDaoJpa implements ConcreteDocumentDao {
     ConcreteDocumentRepository concreteDocumentRepository;
 
     @Override
+    @Transactional
     public ConcreteDocumentDto addNewVersion(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto) {
         ConcreteDocumentDto concreteDocumentDto1 = getLastVersion(documentDto);
         if (concreteDocumentDto1 == null)
@@ -36,19 +39,25 @@ public class ConcreteDocumentDaoJpa implements ConcreteDocumentDao {
             concreteDocumentDto.setVersion(concreteDocumentDto1.getVersion() + 1);
         concreteDocumentDto.setParent_id(documentDto.getId());
 
-        return concreteDocumentParser.EtoDTO(
-                concreteDocumentRepository.save(concreteDocumentParser.DTOtoE(concreteDocumentDto))
-        );
+        ConcreteDocument concreteDocument = concreteDocumentParser.DTOtoE(concreteDocumentDto);
+
+        em.persist(concreteDocument);
+        return concreteDocumentParser.EtoDTO(concreteDocument);
     }
 
     @Override
     public ConcreteDocumentDto getLastVersion(DocumentDto documentDto) {
-        ConcreteDocument concreteDocument = (ConcreteDocument) em.createQuery("select max(c.version) from ConcreteDocument c INNER JOIN c.parent_id cc where cc.id = :idd")
-                .setParameter("idd", documentDto.getId())
-                .getSingleResult();
-        if (concreteDocument == null)
-            return null;
-        return concreteDocumentParser.EtoDTO(concreteDocument);
+        try {
+            ConcreteDocument concreteDocument = (ConcreteDocument) em.createQuery("select max(c.version) from ConcreteDocument c INNER JOIN c.parent_id cc where cc.id = :idd")
+                    .setParameter("idd", documentDto.getId())
+                    .getSingleResult();
+            if (concreteDocument == null)
+                return null;
+            return concreteDocumentParser.EtoDTO(concreteDocument);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

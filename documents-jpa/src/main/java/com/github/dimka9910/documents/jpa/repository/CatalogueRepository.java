@@ -15,17 +15,10 @@ public interface CatalogueRepository extends JpaRepository<Catalogue, Long> {
     @Query(value = "SELECT c FROM Catalogue c WHERE c.parent_id is null ")
     Optional<Catalogue> getRoot();
 
-//    @Query(value = "SELECT c FROM Catalogue c INNER JOIN c.parent_id cc WHERE cc.id = ?1")
-//    List<Catalogue> getChildrens(@Param("idd") Long idd);
 
     @Query(value = "SELECT * FROM Catalogue c WHERE c.parent_id = ?1",
     nativeQuery = true)
     List<Catalogue> getChildrens(Long idd);
-
-
-
-
-    Optional<Catalogue> getById(Long id);
 
     List<Catalogue> findAll();
 }

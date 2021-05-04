@@ -42,10 +42,19 @@ public class CatalogueParser {
     }
 
     public Catalogue DTOtoE(CatalogueDto catalogueDto){
+
+        Date date;
+        if (catalogueDto.getCreated_time() == null)
+            date = new Date();
+        else
+            date = new Date(catalogueDto.getCreated_time().getTime());
+
+        System.out.println("----" + catalogueRepository.findById(catalogueDto.getParent_id()).orElse(null));
+
         return new Catalogue(catalogueDto.getId(),
-                catalogueRepository.getById(catalogueDto.getId()).orElse(null),
-                new Date(catalogueDto.getCreated_time().getTime()),
-                userRepository.getById(catalogueDto.getCreated_by()).orElse(null),
+                catalogueRepository.findById(catalogueDto.getParent_id()).orElse(null),
+                date,
+                catalogueDto.getCreated_by() == null ? null : userRepository.findById(catalogueDto.getCreated_by()).orElse(null),
                 catalogueDto.getName(),
                 catalogueDto.getReadWritePermissionedUsers(),
                 catalogueDto.getReadPermissionedUsers());

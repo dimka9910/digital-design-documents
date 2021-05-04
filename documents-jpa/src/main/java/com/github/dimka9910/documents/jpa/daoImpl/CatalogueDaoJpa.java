@@ -13,12 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.nio.channels.NotYetConnectedException;
 import java.util.LinkedList;
 import java.util.List;
 
-@Component
+@Component("catalogueDaoJpa")
 public class CatalogueDaoJpa implements CatalogueDao {
 
 
@@ -30,6 +32,7 @@ public class CatalogueDaoJpa implements CatalogueDao {
     private CatalogueParser catalogueParser;
     @Autowired
     private DocumentParser documentParser;
+
     @PersistenceContext
     private EntityManager em;
 
@@ -42,7 +45,7 @@ public class CatalogueDaoJpa implements CatalogueDao {
 
     @Override
     public CatalogueDto getCatalogueById(Long id) {
-        return catalogueParser.EtoDTO(catalogueRepository.getById(id).orElseThrow(IdNotFoundException::new));
+        return catalogueParser.EtoDTO(catalogueRepository.findById(id).orElseThrow(IdNotFoundException::new));
     }
 
     @Override
@@ -62,19 +65,22 @@ public class CatalogueDaoJpa implements CatalogueDao {
         return list;
     }
 
+    @Transactional
     @Override
     public CatalogueDto addCatalogue(CatalogueDto catalogueDto, CatalogueDto parent) {
         catalogueDto.setParent_id(parent.getId());
         Catalogue catalogue = catalogueParser.DTOtoE(catalogueDto);
-        return catalogueParser.EtoDTO(catalogueRepository.save(catalogue));
+
+        em.persist(catalogue);
+        return catalogueParser.EtoDTO(catalogue);
     }
 
     @Override
+    @Transactional
     public CatalogueDto modifyCatalogue(CatalogueDto catalogueDto) {
-        em.persist(catalogueParser.DTOtoE(catalogueDto));
-        return catalogueParser.EtoDTO(
-                catalogueRepository.getById(catalogueDto.getId()).orElseThrow(IdNotFoundException::new)
-        );
+        Catalogue catalogue = catalogueRepository.findById(catalogueDto.getId()).orElseThrow(IdNotFoundException::new);
+        catalogue.setName(catalogueDto.getName());
+        return catalogueParser.EtoDTO(catalogue);
     }
 
     @Override

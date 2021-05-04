@@ -52,6 +52,10 @@ public class Document extends HttpServlet implements DefaultMethods {
 
         StringBuffer jb = getBody(request);
         DocumentDto documentDto = (DocumentDto) gson.fromJson(jb.toString(), DocumentDto.class);
+
+        if (documentDto.getParent_id() == null)
+            throw new ServletException();
+
         ConcreteDocumentDto concreteDocumentDto = (ConcreteDocumentDto) gson.fromJson(jb.toString(), ConcreteDocumentDto.class);
         concreteDocumentDto = documentService.saveNewDocument(documentDto, concreteDocumentDto);
         documentDto.setTopVersionDocument(concreteDocumentDto);

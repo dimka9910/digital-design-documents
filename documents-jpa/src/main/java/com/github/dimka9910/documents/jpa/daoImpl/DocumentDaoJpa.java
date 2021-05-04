@@ -4,6 +4,8 @@ import com.github.dimka9910.documents.dao.DocumentDao;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
+import com.github.dimka9910.documents.jpa.entity.files.catalogues.Catalogue;
+import com.github.dimka9910.documents.jpa.entity.files.documents.Document;
 import com.github.dimka9910.documents.jpa.entityParser.files.CatalogueParser;
 import com.github.dimka9910.documents.jpa.entityParser.files.DocumentParser;
 import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Component
@@ -40,10 +43,17 @@ public class DocumentDaoJpa implements DocumentDao {
     }
 
     @Override
+    @Transactional
     public DocumentDto addNewDocument(DocumentDto documentDto, CatalogueDto catalogueDto) {
-        documentDto.setParent_id(catalogueDto.getId());
-        return documentParser.EtoDTO(documentRepository.save(documentParser.DTOtoE(documentDto)));
 
+        if (catalogueDto.getId() == null)
+            throw new IdNotFoundException();
+
+        documentDto.setParent_id(catalogueDto.getId());
+        Document document = documentParser.DTOtoE(documentDto);
+
+        em.persist(document);
+        return documentParser.EtoDTO(document);
     }
 
     @Override

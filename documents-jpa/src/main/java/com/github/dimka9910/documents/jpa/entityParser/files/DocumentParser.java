@@ -17,6 +17,8 @@ import com.github.dimka9910.documents.jpa.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.LinkedList;
@@ -33,6 +35,8 @@ public class DocumentParser {
     UserRepository userRepository;
     @Autowired
     DocumentTypeRepository documentTypeRepository;
+    @PersistenceContext
+    private EntityManager em;
 
 
     public DocumentDto EtoDTO(Document document) {
@@ -52,20 +56,21 @@ public class DocumentParser {
 
         DocumentType documentType;
         if (documentDto.getDocumentType() != null) {
-            documentType = documentTypeRepository.getById(documentDto.getDocumentType()).orElse(null);
+            documentType = documentTypeRepository.findById(documentDto.getDocumentType()).orElse(null);
         }
         if (documentDto.getDocumentTypeName() != null) {
-            documentType = documentTypeRepository.getByName(documentDto.getDocumentTypeName().toLowerCase()).orElse(null);
-            if (documentType == null)
-                documentTypeRepository.save(new DocumentType(documentDto.getDocumentTypeName().toLowerCase()));
+            documentType = documentTypeRepository.findByName(documentDto.getDocumentTypeName().toLowerCase()).orElse(null);
+            if (documentType == null){
+                em.persist(new DocumentType(documentDto.getDocumentTypeName().toLowerCase()));
+            }
         }
 
-        documentType = documentTypeRepository.getByName(documentDto.getDocumentTypeName().toLowerCase()).orElse(null);
+        documentType = documentTypeRepository.findByName(documentDto.getDocumentTypeName().toLowerCase()).orElse(null);
 
         return new Document(documentDto.getId(),
-                catalogueRepository.getById(documentDto.getId()).orElse(null),
-                new Date(documentDto.getCreated_time().getTime()),
-                userRepository.getById(documentDto.getCreated_by()).orElse(null),
+                catalogueRepository.findById(documentDto.getParent_id()).orElse(null),
+                new Date(),
+                documentDto.getCreated_by() == null ? null : userRepository.findById(documentDto.getCreated_by()).orElse(null),
                 documentDto.getName(),
                 documentDto.getReadWritePermissionedUsers(),
                 documentDto.getReadPermissionedUsers(),

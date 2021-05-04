@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface DocumentTypeRepository extends JpaRepository<DocumentType, Long> {
 
-    Optional<DocumentType> getByName(String name);
+    Optional<DocumentType> findByName(String name);
 
-    Optional<DocumentType> getById(Long id);
 }

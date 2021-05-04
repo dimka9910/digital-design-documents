@@ -20,7 +20,7 @@ import java.util.Set;
 public abstract class FileAbstract{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     protected Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)

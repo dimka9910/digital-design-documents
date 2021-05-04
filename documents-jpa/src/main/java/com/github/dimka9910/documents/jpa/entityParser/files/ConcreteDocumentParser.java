@@ -38,21 +38,21 @@ public class ConcreteDocumentParser {
                 .data(document.getData().stream().map(v -> FilePathDto.builder().path(v).build()).collect(Collectors.toList()))
                 .modified_time(new Timestamp(document.getModified_time().getTime()))
                 .description(document.getDescription())
-                .modified_by(document.getModified_by().getId())
+                .modified_by(document.getModified_by() == null ? null : document.getModified_by().getId())
                 .name(document.getName())
                 .build();
     }
 
     public ConcreteDocument DTOtoE(ConcreteDocumentDto concreteDocumentDto) {
 
-        User user = userRepository.getById(concreteDocumentDto.getModified_by()).orElse(null);
+        User user = concreteDocumentDto.getModified_by() == null ? null : userRepository.findById(concreteDocumentDto.getModified_by()).orElse(null);
         Document document = documentRepository.findById(concreteDocumentDto.getParent_id()).orElse(null);
 
         return new ConcreteDocument(concreteDocumentDto.getId(),
                 concreteDocumentDto.getName(),
                 concreteDocumentDto.getDescription(),
                 concreteDocumentDto.getVersion(),
-                new Date(concreteDocumentDto.getModified_time().getTime()),
+                new Date(),
                 user,
                 document,
                 concreteDocumentDto.getData().stream().map(v -> v.getPath()).collect(Collectors.toList())
