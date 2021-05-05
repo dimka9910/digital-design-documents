@@ -4,6 +4,9 @@ import com.github.dimka9910.documents.jpa.entity.user.User;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -13,6 +16,11 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 public class ConcreteDocument{
+
+    @Autowired
+    @Transient
+    EntityManager em;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,10 +40,12 @@ public class ConcreteDocument{
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     protected Document parent_id;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> data;
+
 
     public ConcreteDocument(Long id, String name, String description, Long version, Date modified_time, User modified_by, Document parent_id, List<String> data) {
         this.id = id;

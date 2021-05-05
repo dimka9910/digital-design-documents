@@ -1,15 +1,18 @@
 package com.github.dimka9910.documents.jpa.daoImpl;
 
+import com.github.dimka9910.documents.dao.ConcreteDocumentDao;
 import com.github.dimka9910.documents.dao.DocumentDao;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
 import com.github.dimka9910.documents.jpa.entity.files.catalogues.Catalogue;
+import com.github.dimka9910.documents.jpa.entity.files.documents.ConcreteDocument;
 import com.github.dimka9910.documents.jpa.entity.files.documents.Document;
 import com.github.dimka9910.documents.jpa.entityParser.files.CatalogueParser;
 import com.github.dimka9910.documents.jpa.entityParser.files.DocumentParser;
 import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
 import com.github.dimka9910.documents.jpa.repository.CatalogueRepository;
+import com.github.dimka9910.documents.jpa.repository.ConcreteDocumentRepository;
 import com.github.dimka9910.documents.jpa.repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,6 +28,8 @@ public class DocumentDaoJpa implements DocumentDao {
     private CatalogueRepository catalogueRepository;
     @Autowired
     private DocumentRepository documentRepository;
+    @Autowired
+    private ConcreteDocumentRepository concreteDocumentRepository;
     @Autowired
     private CatalogueParser catalogueParser;
     @Autowired
@@ -67,7 +72,11 @@ public class DocumentDaoJpa implements DocumentDao {
     }
 
     @Override
+    @Transactional
     public Long deleteDocument(DocumentDto documentDto) {
+
+        concreteDocumentRepository.getAllVersions(documentDto.getId())
+                .forEach(em::remove);
         documentRepository.deleteById(documentDto.getId());
         return 0L;
     }

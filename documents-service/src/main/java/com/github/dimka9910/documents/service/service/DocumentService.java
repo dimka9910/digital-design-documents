@@ -63,6 +63,6 @@ public class DocumentService {
     }
 
     public void deleteDocumentById(Long id){
-        documentDao.deleteDocument(documentDao.getDocumentById(id));
+        documentDao.deleteDocument(DocumentDto.builder().id(id).build());
     }
 }

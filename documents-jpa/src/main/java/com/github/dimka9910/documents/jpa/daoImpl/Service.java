@@ -14,6 +14,7 @@ import com.github.dimka9910.documents.jpa.entity.user.User;
 import com.github.dimka9910.documents.jpa.entity.user.UserRolesEnum;
 import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
 import com.github.dimka9910.documents.jpa.repository.CatalogueRepository;
+import com.github.dimka9910.documents.jpa.repository.ConcreteDocumentRepository;
 import com.github.dimka9910.documents.jpa.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ public class Service {
     CatalogueRepository catalogueRepository;
 
     @Autowired
+    ConcreteDocumentRepository concreteDocumentRepository;
+
+    @Autowired
     DocumentDao documentDaoJpa;
 
     @Autowired
@@ -49,14 +53,6 @@ public class Service {
 
 //    @Transactional
     public void test() {
-//        DocumentDto documentDto = DocumentDto.builder().priority(PriorityEnum.LOW).documentTypeName("fax").parent_id(1L)
-//                .typeOfFile(TypeOfFileEnum.DOCUMENT)
-//                .name("nametest8").build();
-//
-//        documentDaoJpa.addNewDocument(documentDto, CatalogueDto.builder().id(1L).build());
-
-//        documentDaoJpa.deleteDocument(DocumentDto.builder().id(26L).build());
-//        catalogueDaoJpa.deleteCatalogue(CatalogueDto.builder().id(16L).build());
-
+//        documentDaoJpa.deleteDocument(DocumentDto.builder().id(51L).build());
     }
 }
