@@ -8,5 +8,6 @@ public interface UserDao extends AbstractDao{
     UserDto getCurrentUser();
     UserDto addNewUser(UserDto userDto);
     List<UserDto> getAllUsers();
-    Long deleteUser(UserDto userDto);
+    Long deleteUser(Long id);
+    UserDto getUserByLogin(String login);
 }

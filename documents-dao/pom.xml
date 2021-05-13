@@ -5,18 +5,23 @@
     <parent>
         <artifactId>digital-design-documents</artifactId>
         <groupId>com.github.dimka9910</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>documents-dao</artifactId>
+
+
+
     <dependencies>
+        <!-- MODULES -->
         <dependency>
             <groupId>com.github.dimka9910</groupId>
             <artifactId>documents-dto</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
+
     </dependencies>
 
 

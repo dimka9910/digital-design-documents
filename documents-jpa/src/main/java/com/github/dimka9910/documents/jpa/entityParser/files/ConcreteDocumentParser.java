@@ -1,16 +1,11 @@
 package com.github.dimka9910.documents.jpa.entityParser.files;
 
-import com.github.dimka9910.documents.dao.ConcreteDocumentDao;
-import com.github.dimka9910.documents.dao.FilePathDao;
-import com.github.dimka9910.documents.dto.files.TypeOfFileEnum;
 import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
-import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.FilePathDto;
-import com.github.dimka9910.documents.dto.files.documents.PriorityEnum;
 import com.github.dimka9910.documents.jpa.entity.files.documents.ConcreteDocument;
 import com.github.dimka9910.documents.jpa.entity.files.documents.Document;
-import com.github.dimka9910.documents.jpa.entity.files.documents.DocumentType;
 import com.github.dimka9910.documents.jpa.entity.user.User;
+import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
 import com.github.dimka9910.documents.jpa.repository.DocumentRepository;
 import com.github.dimka9910.documents.jpa.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,34 +24,45 @@ public class ConcreteDocumentParser {
     UserRepository userRepository;
     @Autowired
     DocumentRepository documentRepository;
+    @Autowired
+    FilePathParser filePathParser;
 
     public ConcreteDocumentDto EtoDTO(ConcreteDocument document) {
+        if (document == null)
+            return null;
+
         return ConcreteDocumentDto.builder()
                 .id(document.getId())
-                .parent_id(document.getParent_id().getId())
+                .parentDocumentId(document.getParent() == null ? null : document.getParent().getId())
                 .version(document.getVersion())
-                .data(document.getData()==null ? null : document.getData().stream().map(v -> FilePathDto.builder().path(v).build()).collect(Collectors.toList()))
-                .modified_time(new Timestamp(document.getModified_time().getTime()))
+                .modifiedTime(new Timestamp(document.getModifiedTime().getTime()))
                 .description(document.getDescription())
-                .modified_by(document.getModified_by() == null ? null : document.getModified_by().getId())
+                .userModifiedBy(document.getModifiedBy() == null ? null : document.getModifiedBy().getId())
                 .name(document.getName())
+                .data(document.getFilePathList() == null ? null : filePathParser.fromList(document.getFilePathList()))
                 .build();
     }
 
     public ConcreteDocument DTOtoE(ConcreteDocumentDto concreteDocumentDto) {
 
-        User user = concreteDocumentDto.getModified_by() == null ? null : userRepository.findById(concreteDocumentDto.getModified_by()).orElse(null);
-        Document document = documentRepository.findById(concreteDocumentDto.getParent_id()).orElse(null);
+        User user = concreteDocumentDto.getUserModifiedBy() == null ?
+                null :
+                userRepository.findById(concreteDocumentDto.getUserModifiedBy()).orElseThrow(IdNotFoundException::new);
 
-        return new ConcreteDocument(concreteDocumentDto.getId(),
-                concreteDocumentDto.getName(),
-                concreteDocumentDto.getDescription(),
-                concreteDocumentDto.getVersion(),
-                new Date(),
-                user,
-                document,
-                concreteDocumentDto.getData() == null ? null : concreteDocumentDto.getData().stream().map(v -> v.getPath()).collect(Collectors.toList())
-        );
+        Document document = concreteDocumentDto.getParentDocumentId() == null ?
+                null :
+                documentRepository.findById(concreteDocumentDto.getParentDocumentId())
+                .orElseThrow(IdNotFoundException::new);
+
+        ConcreteDocument concreteDocument = new ConcreteDocument();
+        concreteDocument.setId(concreteDocumentDto.getId());
+        concreteDocument.setName(concreteDocumentDto.getName());
+        concreteDocument.setDescription(concreteDocumentDto.getDescription());
+        concreteDocument.setVersion(concreteDocumentDto.getVersion());
+        concreteDocument.setModifiedTime(new Date());
+        concreteDocument.setModifiedBy(user);
+
+        return concreteDocument;
     }
 
         public List<ConcreteDocumentDto> fromList(List<ConcreteDocument> list) {

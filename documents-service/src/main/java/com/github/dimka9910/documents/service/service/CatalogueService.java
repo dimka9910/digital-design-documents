@@ -1,25 +1,27 @@
 package com.github.dimka9910.documents.service.service;
 
 import com.github.dimka9910.documents.dao.CatalogueDao;
-import com.github.dimka9910.documents.dao.ConcreteDocumentDao;
 import com.github.dimka9910.documents.dto.files.FileAbstractDto;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import org.springframework.stereotype.Service;
 import java.util.List;
 
-@Component("catalogueService")
+
+@Service
 public class CatalogueService {
 
+    @Autowired
+    UserService userService;
+
     private CatalogueDao catalogueDao;
-    private DaoFactory daoFactory;
 
     public CatalogueService(DaoFactory daoFactory) {
-        this.daoFactory = daoFactory;
         catalogueDao = daoFactory.getCatalogueDao();
     }
 
-    public CatalogueDto getCatalogueById(Long id){
+    public CatalogueDto getCatalogueById(Long id) {
         CatalogueDto catalogueDto;
         if (id == null)
             return catalogueDao.getRootCatalogue();
@@ -27,28 +29,25 @@ public class CatalogueService {
             return catalogueDao.getCatalogueById(id);
     }
 
-    public List<FileAbstractDto> getInnerCataloguesAndDocuments(Long id){
+    public List<FileAbstractDto> getInnerCataloguesAndDocuments(Long id) {
         List<FileAbstractDto> list = List.of();
-        if (id == null)
-            list = catalogueDao.getAllChildren(catalogueDao.getRootCatalogue());
-        else{
-            list = catalogueDao.getAllChildren(catalogueDao.getCatalogueById(id));
-        }
+        list = catalogueDao.getAllChildren(id);
         return list;
     }
 
-    public void deleteCatalogueById(Long id){
+    public void deleteCatalogueById(Long id) {
         if (id != catalogueDao.getRootCatalogue().getId())
-            catalogueDao.deleteCatalogue(catalogueDao.getCatalogueById(id));
+            catalogueDao.deleteCatalogue(id);
     }
 
-    public CatalogueDto createCatalogue(CatalogueDto children, Long parent_id){
-        return catalogueDao.addCatalogue(children, getCatalogueById(parent_id));
+    public CatalogueDto createCatalogue(CatalogueDto children) {
+        children.setUserCreatedById(userService.getCurrentUser().getId());
+        return catalogueDao.addCatalogue(children);
     }
 
-    public CatalogueDto modifyCatalogue(Long id, String name){
+    public CatalogueDto modifyCatalogue(Long id, String name) {
         if (id != catalogueDao.getRootCatalogue().getId())
-            return catalogueDao.modifyCatalogue(CatalogueDto.builder().name(name).id(id).build());
+            catalogueDao.modifyCatalogue(CatalogueDto.builder().name(name).id(id).build());
         return catalogueDao.getCatalogueById(id);
     }
 

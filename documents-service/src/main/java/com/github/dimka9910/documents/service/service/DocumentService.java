@@ -4,14 +4,20 @@ import com.github.dimka9910.documents.dao.ConcreteDocumentDao;
 import com.github.dimka9910.documents.dao.DocumentDao;
 import com.github.dimka9910.documents.dao.DocumentTypeDao;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
-import com.github.dimka9910.documents.dto.files.documents.*;
+import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
+import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
+import com.github.dimka9910.documents.dto.files.documents.DocumentTypeDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Component("documentService")
+@Service
 public class DocumentService {
+
+    @Autowired
+    UserService userService;
 
     private final DocumentDao documentDao;
     private final ConcreteDocumentDao concreteDocumentDao;
@@ -28,29 +34,25 @@ public class DocumentService {
     }
 
     public ConcreteDocumentDto openDocumentById(Long id){
-        return concreteDocumentDao.getLastVersion(documentDao.getDocumentById(id));
+        return concreteDocumentDao.getLastVersion(id);
     }
 
     public List<ConcreteDocumentDto> getAllVersionsById(Long id){
-        return concreteDocumentDao.getAllVersions(documentDao.getDocumentById(id));
+        return concreteDocumentDao.getAllVersions(id);
     }
 
-    public ConcreteDocumentDto saveNewDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto){
-
-        CatalogueDto catalogueDto = CatalogueDto.builder().id(documentDto.getParent_id()).build();
-        documentDto = documentDao.addNewDocument(documentDto, catalogueDto);
-
-        return concreteDocumentDao.addNewVersion(documentDto, concreteDocumentDto);
+    public DocumentDto saveNewDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto){
+        documentDto.setUserCreatedById(userService.getCurrentUser().getId());
+        return documentDao.addNewDocument(documentDto, concreteDocumentDto);
     }
 
-    public List<ConcreteDocumentDto> getAllVersions(DocumentDto documentDto){
-        return concreteDocumentDao.getAllVersions(documentDto);
+    public List<ConcreteDocumentDto> getAllVersions(Long id){
+        return concreteDocumentDao.getAllVersions(id);
     }
 
 
     public ConcreteDocumentDto modifyDocument(ConcreteDocumentDto concreteDocumentDto){
-        DocumentDto documentDto = DocumentDto.builder().id(concreteDocumentDto.getParent_id()).build();
-        concreteDocumentDao.addNewVersion(documentDto, concreteDocumentDto);
+        concreteDocumentDao.addNewVersion(concreteDocumentDto);
         return concreteDocumentDto;
     }
 
@@ -63,6 +65,6 @@ public class DocumentService {
     }
 
     public void deleteDocumentById(Long id){
-        documentDao.deleteDocument(DocumentDto.builder().id(id).build());
+        documentDao.deleteDocument(id);
     }
 }

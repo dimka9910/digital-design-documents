@@ -8,14 +8,10 @@ import java.util.List;
 public interface CatalogueDao extends AbstractDao{
 
     CatalogueDto getRootCatalogue();
-
     CatalogueDto getCatalogueById(Long id);
     List<CatalogueDto> getAllCatalogues();
-    List<FileAbstractDto> getAllChildren(CatalogueDto catalogueDto);
-
-    CatalogueDto addCatalogue(CatalogueDto catalogueDto, CatalogueDto parent);
-
+    List<FileAbstractDto> getAllChildren(Long id);
+    CatalogueDto addCatalogue(CatalogueDto catalogueDto);
     CatalogueDto modifyCatalogue(CatalogueDto catalogueDto);
-
-    Long deleteCatalogue(CatalogueDto catalogueDto);
+    Long deleteCatalogue(Long id);
 }

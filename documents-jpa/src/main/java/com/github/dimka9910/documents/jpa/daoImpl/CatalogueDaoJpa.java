@@ -13,16 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.nio.channels.NotYetConnectedException;
 import java.util.LinkedList;
 import java.util.List;
 
 @Component("catalogueDaoJpa")
 public class CatalogueDaoJpa implements CatalogueDao {
-
 
     @Autowired
     private CatalogueRepository catalogueRepository;
@@ -32,7 +29,6 @@ public class CatalogueDaoJpa implements CatalogueDao {
     private CatalogueParser catalogueParser;
     @Autowired
     private DocumentParser documentParser;
-
     @PersistenceContext
     private EntityManager em;
 
@@ -58,19 +54,17 @@ public class CatalogueDaoJpa implements CatalogueDao {
     }
 
     @Override
-    public List<FileAbstractDto> getAllChildren(CatalogueDto catalogueDto) {
+    public List<FileAbstractDto> getAllChildren(Long id) {
         List<FileAbstractDto> list = new LinkedList<>();
-        list.addAll(catalogueParser.fromList(catalogueRepository.getChildrens(catalogueDto.getId())));
-        list.addAll(documentParser.fromList(documentRepository.getChildrens(catalogueDto.getId())));
+        list.addAll(catalogueParser.fromList(catalogueRepository.getChildrens(id)));
+        list.addAll(documentParser.fromList(documentRepository.getChildrens(id)));
         return list;
     }
 
     @Transactional
     @Override
-    public CatalogueDto addCatalogue(CatalogueDto catalogueDto, CatalogueDto parent) {
-        catalogueDto.setParent_id(parent.getId());
+    public CatalogueDto addCatalogue(CatalogueDto catalogueDto) {
         Catalogue catalogue = catalogueParser.DTOtoE(catalogueDto);
-
         em.persist(catalogue);
         return catalogueParser.EtoDTO(catalogue);
     }
@@ -84,8 +78,8 @@ public class CatalogueDaoJpa implements CatalogueDao {
     }
 
     @Override
-    public Long deleteCatalogue(CatalogueDto catalogueDto) {
-        catalogueRepository.deleteById(catalogueDto.getId());
+    public Long deleteCatalogue(Long id) {
+        catalogueRepository.deleteById(id);
         return 0L;
     }
 }

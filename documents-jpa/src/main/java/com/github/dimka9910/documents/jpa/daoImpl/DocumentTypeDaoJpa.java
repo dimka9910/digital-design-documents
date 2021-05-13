@@ -58,9 +58,9 @@ public class DocumentTypeDaoJpa implements DocumentTypeDao {
     }
 
     @Override
-    public Long deleteDocumentType(DocumentTypeDto documentTypeDto) {
-        if (documentTypeDto.getId() != null)
-            documentTypeRepository.deleteById(documentTypeDto.getId());
+    public Long deleteDocumentType(Long id) {
+        if (id != null)
+            documentTypeRepository.deleteById(id);
         else
             throw new IdNotFoundException();
         return 0L;
