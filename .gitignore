@@ -34,3 +34,4 @@ build/
 .vscode/
 
 /documents-jpa/target/
+/documents-service/target/
