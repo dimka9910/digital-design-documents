@@ -34,10 +34,10 @@ public class AccessRestController {
     }
 
     @GetMapping
-    public Map<String, Object> checkAccess(@RequestParam Long file){
+    public Map<String, Object> checkAccess(@RequestParam Long fileId){
         Map<String, Object> rtn = new LinkedHashMap<>();
-        rtn.put("read", accessService.chekRAccess(file));
-        rtn.put("read_write", accessService.chekRWAccess(file));
+        rtn.put("read", accessService.chekRAccess(fileId));
+        rtn.put("read_write", accessService.chekRWAccess(fileId));
         return rtn;
     }
 

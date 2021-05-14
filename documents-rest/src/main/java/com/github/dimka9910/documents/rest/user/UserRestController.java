@@ -6,6 +6,7 @@ import com.github.dimka9910.documents.jpa.entity.user.UserRolesEnum;
 import com.github.dimka9910.documents.service.service.AccessService;
 import com.github.dimka9910.documents.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,23 +21,26 @@ public class UserRestController {
     @Autowired
     AccessService accessService;
 
-    @PostMapping("/register")
-    public UserDto register(@RequestBody @Valid UserDto userDto){
+    @PostMapping(value = "/register",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public UserDto register(@RequestBody @Valid UserDto userDto) {
         return userService.addNewUser(userDto);
     }
 
 
-    @GetMapping("/getcurrent")
-    public UserDto getCurrentUser(){
+    @GetMapping(value = "/getcurrent",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public UserDto getCurrentUser() {
         return userService.getCurrentUser();
     }
 
-    @PostMapping("/grantaccess/{id}/{role}")
-    public UserDto grantAccess(@PathVariable("id") Long id, @PathVariable("role") UserRolesEnum role){
-        return accessService.grantAccess(id, role);
+    @PostMapping(value = "/grantaccess",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public UserDto grantAccess(@RequestBody UserDto userDto) {
+        return accessService.grantAccess(userDto.getId(), UserRolesEnum.valueOf(userDto.getRole()));
     }
-
-
 
 
 }

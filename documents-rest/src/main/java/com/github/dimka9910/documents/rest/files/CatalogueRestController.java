@@ -4,6 +4,7 @@ import com.github.dimka9910.documents.dto.files.FileAbstractDto;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.service.service.CatalogueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,7 +31,9 @@ public class CatalogueRestController {
         return catalogueService.getInnerCataloguesAndDocuments(id);
     }
 
-    @PostMapping
+    @PostMapping(value = "",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     public CatalogueDto addCatalogue(@RequestBody CatalogueDto catalogueDto){
         return catalogueService.createCatalogue(catalogueDto);
     }
