@@ -10,7 +10,10 @@ import java.util.List;
 
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
-    @Query(value = "SELECT c FROM Document c INNER JOIN c.parent_id cc WHERE cc.id = ?1")
-    List<Document> getChildrens(@Param("idd") Long idd);
+
+
+    @Query(value = "SELECT * FROM Document c WHERE c.fk_parent = ?1",
+            nativeQuery = true)
+    List<Document> getChildrens(Long idd);
 
 }

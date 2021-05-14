@@ -1,18 +1,24 @@
 package com.github.dimka9910.documents.jpa.entity.files.documents;
 
 import com.github.dimka9910.documents.jpa.entity.user.User;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Data
 @Entity
 @NoArgsConstructor
-public class ConcreteDocument{
+@ToString(exclude = "parent")
+public class ConcreteDocument {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,28 +29,21 @@ public class ConcreteDocument{
     @Column(nullable = false)
     private Long version;
 
-    @Temporal(TemporalType.DATE)
-    protected Date modified_time;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Date modifiedTime;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "modified_by")
-    protected User modified_by;
+    @JoinColumn(name = "fk_user")
+    protected User modifiedBy;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "parent_id")
-    protected Document parent_id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_document")
+    protected Document parent;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> data;
+    @OneToMany(
+            mappedBy = "parent",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.REMOVE)
+    private List<FilePath> filePathList = new ArrayList<>();
 
-    public ConcreteDocument(Long id, String name, String description, Long version, Date modified_time, User modified_by, Document parent_id, List<String> data) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.version = version;
-        this.modified_time = modified_time;
-        this.modified_by = modified_by;
-        this.parent_id = parent_id;
-        this.data = data;
-    }
 }

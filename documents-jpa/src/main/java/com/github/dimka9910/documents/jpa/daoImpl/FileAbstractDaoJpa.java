@@ -1,0 +1,133 @@
+package com.github.dimka9910.documents.jpa.daoImpl;
+
+import com.github.dimka9910.documents.dao.FileAbstractDao;
+import com.github.dimka9910.documents.dto.files.FileAbstractDto;
+import com.github.dimka9910.documents.dto.user.UserDto;
+import com.github.dimka9910.documents.jpa.entity.files.FileAbstract;
+import com.github.dimka9910.documents.jpa.entity.user.User;
+import com.github.dimka9910.documents.jpa.entityParser.user.UserParser;
+import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
+import com.github.dimka9910.documents.jpa.repository.FileAbstractRepository;
+import com.github.dimka9910.documents.jpa.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+public class FileAbstractDaoJpa implements FileAbstractDao {
+
+    @Autowired
+    FileAbstractRepository fileAbstractRepository;
+    @Autowired
+    UserRepository userRepository;
+    @PersistenceContext
+    private EntityManager em;
+    @Autowired
+    UserParser userParser;
+
+    /**
+     * Grant access to current user
+     * If current file (or any parent file) creator current user
+     * or
+     * If current user has permissions to read current file (or any of parent file)
+     *   (in other words he exists in any of ReadWritePermission lists)
+     *
+     */
+    @Override
+    @Transactional
+    public boolean checkRWAccess(Long id) {
+        FileAbstract fileAbstract = fileAbstractRepository.findById(id).orElseThrow(IdNotFoundException::new);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        em.merge(fileAbstract);
+        em.merge(user);
+        while (fileAbstract != null){
+            if (user.equals(fileAbstract.getUserCreatedBy()) ||
+            fileAbstract.getReadWritePermissionUsers().contains(user))
+                return true;
+            else
+                fileAbstract = fileAbstract.getParentCatalogue();
+        }
+        return false;
+    }
+
+    /**
+     * Grant access to current user
+     * If current file (or any parent file) creator is current user
+     * or
+     * If current user has permissions to read current file (or any of parent file)
+     * or
+     * If current file and avery parent file (up to root) don't have restrictions on read
+     *   (in other words ReadPermission list empty for each)
+     *   coz by task Read permission for everyone by default
+     *
+     */
+    @Override
+    @Transactional
+    public boolean checkRAccess(Long id) {
+        FileAbstract fileAbstract = fileAbstractRepository.findById(id).orElseThrow(IdNotFoundException::new);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        em.merge(fileAbstract);
+        em.merge(user);
+        while (fileAbstract != null){
+            if (user.equals(fileAbstract.getUserCreatedBy()) ||
+                    fileAbstract.getReadPermissionUsers().contains(user))
+                return true;
+            else if (fileAbstract.getReadPermissionUsers().size() == 0)
+                fileAbstract = fileAbstract.getParentCatalogue();
+            else
+                return false;
+        }
+        return true;
+    }
+
+
+    @Override
+    @Transactional
+    public List<UserDto> grantRAccess(Long fileId, Long userId) {
+        FileAbstract fileAbstract = fileAbstractRepository.findById(fileId).orElseThrow(IdNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(IdNotFoundException::new);
+        em.merge(fileAbstract);
+        em.merge(user);
+        fileAbstract.getReadPermissionUsers().add(user);
+        return userParser.fromList(new ArrayList<>(fileAbstract.getReadPermissionUsers()));
+    }
+
+    @Override
+    @Transactional
+    public List<UserDto> grantRWAccess(Long fileId, Long userId) {
+        FileAbstract fileAbstract = fileAbstractRepository.findById(fileId).orElseThrow(IdNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(IdNotFoundException::new);
+        em.merge(fileAbstract);
+        em.merge(user);
+        fileAbstract.getReadWritePermissionUsers().add(user);
+        return userParser.fromList(new ArrayList<>(fileAbstract.getReadWritePermissionUsers()));
+    }
+
+    @Override
+    @Transactional
+    public List<UserDto> declineRAccess(Long fileId, Long userId) {
+        FileAbstract fileAbstract = fileAbstractRepository.findById(fileId).orElseThrow(IdNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(IdNotFoundException::new);
+        em.merge(fileAbstract);
+        em.merge(user);
+        fileAbstract.getReadPermissionUsers().remove(user);
+        return userParser.fromList(new ArrayList<>(fileAbstract.getReadPermissionUsers()));
+    }
+
+    @Override
+    @Transactional
+    public List<UserDto> declineRWAccess(Long fileId, Long userId) {
+        FileAbstract fileAbstract = fileAbstractRepository.findById(fileId).orElseThrow(IdNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(IdNotFoundException::new);
+        em.merge(fileAbstract);
+        em.merge(user);
+        fileAbstract.getReadWritePermissionUsers().remove(user);
+        return userParser.fromList(new ArrayList<>(fileAbstract.getReadWritePermissionUsers()));
+    }
+}

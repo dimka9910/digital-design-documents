@@ -7,49 +7,41 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
+@Entity
 @NoArgsConstructor
-@MappedSuperclass
+@DiscriminatorColumn(name = "type")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class FileAbstract{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @TableGenerator(
+            name = "ID_GEN",
+            table = "ID_Generator",
+            pkColumnName = "name",
+            valueColumnName = "sequence",
+            allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "ID_GEN")
     protected Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "parent_id")
-    protected Catalogue parent_id;
+    @JoinColumn(name = "fk_parent")
+    protected Catalogue parentCatalogue;
 
-    @Temporal(TemporalType.DATE)
-    protected Date created_time;
+    @Temporal(TemporalType.TIMESTAMP)
+    @JoinColumn(name = "created_time")
+    protected Date createdTime;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "created_by")
-    protected User created_by;
+    @JoinColumn(name = "fk_user")
+    protected User userCreatedBy;
 
-    protected String name;
+    @ManyToMany
+    protected Set<User> readPermissionUsers = new HashSet<>();
 
-    @ElementCollection
-    protected List<Long> readWritePermissionUsers;
-
-    @ElementCollection
-    protected List<Long> readPermissionUsers;
-
-    @Override
-    public String toString() {
-        return "FileAbstract{" +
-                "id=" + id +
-                ", parent_id=" + parent_id +
-                ", created_time=" + created_time +
-                ", created_by=" + created_by +
-                ", name='" + name + '\'' +
-                '}';
-    }
+    @ManyToMany
+    protected Set<User> readWritePermissionUsers = new HashSet<>();
 }

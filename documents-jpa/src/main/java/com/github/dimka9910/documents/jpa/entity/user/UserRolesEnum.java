@@ -1,5 +1,12 @@
 package com.github.dimka9910.documents.jpa.entity.user;
 
-public enum UserRolesEnum {
+import org.springframework.security.core.GrantedAuthority;
+
+public enum UserRolesEnum implements GrantedAuthority {
     USER, ADMIN;
+
+    @Override
+    public String getAuthority() {
+        return name();
+    }
 }

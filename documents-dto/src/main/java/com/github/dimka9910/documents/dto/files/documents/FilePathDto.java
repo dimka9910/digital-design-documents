@@ -4,10 +4,16 @@ import com.github.dimka9910.documents.dto.AbstractDto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 @Data
 @Builder
 public class FilePathDto implements AbstractDto {
     private Long id;
+    private String name;
+    private Long size;
     private String path;
-    private Long parent_id;
+    private Long parentConcreteDocumentId;
+    private Date createdTime;
 }

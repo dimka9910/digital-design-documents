@@ -4,12 +4,16 @@ import com.github.dimka9910.documents.dao.DocumentDao;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
-import com.github.dimka9910.documents.jpa.entity.files.catalogues.Catalogue;
+import com.github.dimka9910.documents.jpa.entity.files.documents.ConcreteDocument;
 import com.github.dimka9910.documents.jpa.entity.files.documents.Document;
+import com.github.dimka9910.documents.jpa.entity.files.documents.FilePath;
 import com.github.dimka9910.documents.jpa.entityParser.files.CatalogueParser;
+import com.github.dimka9910.documents.jpa.entityParser.files.ConcreteDocumentParser;
 import com.github.dimka9910.documents.jpa.entityParser.files.DocumentParser;
+import com.github.dimka9910.documents.jpa.entityParser.files.FilePathParser;
 import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
 import com.github.dimka9910.documents.jpa.repository.CatalogueRepository;
+import com.github.dimka9910.documents.jpa.repository.ConcreteDocumentRepository;
 import com.github.dimka9910.documents.jpa.repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,15 +22,18 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class DocumentDaoJpa implements DocumentDao {
     @Autowired
-    private CatalogueRepository catalogueRepository;
-    @Autowired
     private DocumentRepository documentRepository;
     @Autowired
-    private CatalogueParser catalogueParser;
+    private ConcreteDocumentRepository concreteDocumentRepository;
+    @Autowired
+    private ConcreteDocumentParser concreteDocumentParser;
+    @Autowired
+    private FilePathParser filePathParser;
     @Autowired
     private DocumentParser documentParser;
     @PersistenceContext
@@ -42,33 +49,64 @@ public class DocumentDaoJpa implements DocumentDao {
         return documentParser.EtoDTO(documentRepository.findById(id).orElseThrow(IdNotFoundException::new));
     }
 
-    @Override
-    @Transactional
-    public DocumentDto addNewDocument(DocumentDto documentDto, CatalogueDto catalogueDto) {
+    public DocumentDto addNewVersion(Document document, ConcreteDocumentDto concreteDocumentDto){
 
-        if (catalogueDto.getId() == null)
-            throw new IdNotFoundException();
-
-        documentDto.setParent_id(catalogueDto.getId());
-        Document document = documentParser.DTOtoE(documentDto);
+        ConcreteDocument concreteDocument = concreteDocumentParser.DTOtoE(concreteDocumentDto);
 
         em.persist(document);
+        em.persist(concreteDocument);
+
+        concreteDocument.setParent(document);
+
+        // добавление file path
+        List<FilePath> list = concreteDocumentDto.getData().stream()
+                .map(filePathParser::DTOtoE)
+                .collect(Collectors.toList());
+
+        list.forEach(v ->{
+                em.persist(v);
+                v.setParent(concreteDocument);
+        });
+
+        concreteDocument.getFilePathList().addAll(list);
+
+        document.getConcreteDocuments().add(concreteDocument);
+        document.setTopVersionDocument(concreteDocument);
         return documentParser.EtoDTO(document);
     }
 
     @Override
-    public DocumentDto modifyDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto) {
-        documentDto.setName(concreteDocumentDto.getName());
-        em.persist(documentParser.DTOtoE(documentDto));
-        return documentParser.EtoDTO(
-                documentRepository.findById(documentDto.getId())
-                        .orElseThrow(IdNotFoundException::new)
+    @Transactional
+    public DocumentDto addNewDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto) {
+        Document document = documentParser.DTOtoE(documentDto);
+        concreteDocumentDto.setVersion(1L);
+        return addNewVersion(document, concreteDocumentDto);
+    }
+
+
+    @Override
+    public List<ConcreteDocumentDto> getAllVersions(Long id){
+        return concreteDocumentParser.fromList(
+                concreteDocumentRepository.getAllVersions(id)
         );
     }
 
+
     @Override
-    public Long deleteDocument(DocumentDto documentDto) {
-        documentRepository.deleteById(documentDto.getId());
+    @Transactional
+    public DocumentDto modifyDocument(ConcreteDocumentDto concreteDocumentDto) {
+        Document document = documentRepository.findById(concreteDocumentDto.getParentDocumentId())
+                .orElseThrow(IdNotFoundException::new);
+        concreteDocumentDto.setVersion(document.getTopVersionDocument().getVersion() + 1);
+        return addNewVersion(document, concreteDocumentDto);
+    }
+
+    @Override
+    @Transactional
+    public Long deleteDocument(Long id) {
+        concreteDocumentRepository.getAllVersions(id)
+                .forEach(em::remove);
+        documentRepository.deleteById(id);
         return 0L;
     }
 }
