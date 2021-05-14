@@ -32,4 +32,6 @@ public class UserService implements UserDetailsService {
         return userDaoJpa.getCurrentUser();
     }
 
+    public UserDto modifyUser(UserDto userDto) {return userDaoJpa.modifyUser(userDto);}
+
 }

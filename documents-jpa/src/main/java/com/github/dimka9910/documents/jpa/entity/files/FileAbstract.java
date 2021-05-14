@@ -7,9 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -42,8 +40,8 @@ public abstract class FileAbstract{
     protected User userCreatedBy;
 
     @ManyToMany
-    protected List<User> readPermissionUsers = new ArrayList<>();
+    protected Set<User> readPermissionUsers = new HashSet<>();
 
     @ManyToMany
-    protected List<User> readWritePermissionUsers = new ArrayList<>();
+    protected Set<User> readWritePermissionUsers = new HashSet<>();
 }

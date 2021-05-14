@@ -56,4 +56,20 @@ public class UserDaoJpa implements UserDao {
     public UserDto getUserByLogin(String login) {
         return null;
     }
+
+
+    @Override
+    @Transactional
+    public UserDto modifyUser(UserDto userDto) {
+        User user = userRepository.findById(userDto.getId()).orElseThrow(IdNotFoundException::new);
+
+        if (userDto.getRole() != null)
+            user.setRole(UserRolesEnum.valueOf(userDto.getRole()));
+        if (userDto.getLogin() != null)
+            user.setLogin(userDto.getLogin());
+        if (userDto.getPassword() != null)
+            user.setPassword(userDto.getPassword());
+        em.merge(user);
+        return userParser.EtoDTO(user);
+    }
 }

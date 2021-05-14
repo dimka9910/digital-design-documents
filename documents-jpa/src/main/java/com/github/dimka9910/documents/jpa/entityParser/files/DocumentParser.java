@@ -48,9 +48,10 @@ public class DocumentParser {
                 .id(document.getId())
                 .createdTime(new Timestamp(document.getCreatedTime().getTime()))
                 .parentId(document.getParentCatalogue().getId())
-                .name("document.getName()")
+                .name(document.getTopVersionDocument() == null ? null : document.getTopVersionDocument().getName())
                 .documentType(document.getDocumentType().getName())
                 .priority(document.getPriority().toString())
+                .userCreatedById(document.getUserCreatedBy() == null ? null : document.getUserCreatedBy().getId())
                 .typeOfFile("DOCUMENT")
                 .topVersionDocument(concreteDocumentParser.EtoDTO(document.getTopVersionDocument()))
                 .build();

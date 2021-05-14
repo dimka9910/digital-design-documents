@@ -11,6 +11,8 @@ public interface DocumentDao extends AbstractDao {
 
     DocumentDto getDocumentById(Long id);
 
+    List<ConcreteDocumentDto> getAllVersions(Long id);
+
     DocumentDto addNewDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto);
 
     DocumentDto modifyDocument(ConcreteDocumentDto concreteDocumentDto);

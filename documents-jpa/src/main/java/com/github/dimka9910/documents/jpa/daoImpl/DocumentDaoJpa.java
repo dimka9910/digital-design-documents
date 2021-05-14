@@ -49,7 +49,6 @@ public class DocumentDaoJpa implements DocumentDao {
         return documentParser.EtoDTO(documentRepository.findById(id).orElseThrow(IdNotFoundException::new));
     }
 
-    @Transactional
     public DocumentDto addNewVersion(Document document, ConcreteDocumentDto concreteDocumentDto){
 
         ConcreteDocument concreteDocument = concreteDocumentParser.DTOtoE(concreteDocumentDto);
@@ -77,16 +76,28 @@ public class DocumentDaoJpa implements DocumentDao {
     }
 
     @Override
+    @Transactional
     public DocumentDto addNewDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto) {
         Document document = documentParser.DTOtoE(documentDto);
+        concreteDocumentDto.setVersion(1L);
         return addNewVersion(document, concreteDocumentDto);
     }
 
+
     @Override
+    public List<ConcreteDocumentDto> getAllVersions(Long id){
+        return concreteDocumentParser.fromList(
+                concreteDocumentRepository.getAllVersions(id)
+        );
+    }
+
+
+    @Override
+    @Transactional
     public DocumentDto modifyDocument(ConcreteDocumentDto concreteDocumentDto) {
         Document document = documentRepository.findById(concreteDocumentDto.getParentDocumentId())
                 .orElseThrow(IdNotFoundException::new);
-
+        concreteDocumentDto.setVersion(document.getTopVersionDocument().getVersion() + 1);
         return addNewVersion(document, concreteDocumentDto);
     }
 

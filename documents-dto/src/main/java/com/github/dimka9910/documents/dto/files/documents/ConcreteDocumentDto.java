@@ -1,14 +1,15 @@
 package com.github.dimka9910.documents.dto.files.documents;
 
 import com.github.dimka9910.documents.dto.AbstractDto;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConcreteDocumentDto implements AbstractDto {
     private Long id;
     private String name;

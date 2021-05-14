@@ -1,14 +1,11 @@
 package com.github.dimka9910.documents.service.service;
 
-import com.github.dimka9910.documents.dao.ConcreteDocumentDao;
 import com.github.dimka9910.documents.dao.DocumentDao;
 import com.github.dimka9910.documents.dao.DocumentTypeDao;
-import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
-import com.github.dimka9910.documents.dto.files.documents.DocumentTypeDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,53 +15,44 @@ public class DocumentService {
 
     @Autowired
     UserService userService;
+    @Autowired
+    AccessService accessService;
+    @Autowired
+    DocumentDao documentDao;
+    @Autowired
+    DocumentTypeDao documentTypeDao;
 
-    private final DocumentDao documentDao;
-    private final ConcreteDocumentDao concreteDocumentDao;
-    private final DocumentTypeDao documentTypeDao;
-
-    public DocumentService(DaoFactory daoFactory) {
-        concreteDocumentDao = daoFactory.getConcreteDocumentDao();
-        documentDao = daoFactory.getDocumentDao();
-        documentTypeDao = daoFactory.getDocumentTypeDao();
-    }
 
     public DocumentDto getDocumentById(Long id){
+        if (!accessService.chekRAccess(id))
+            throw new AccessDeniedException("Access error");
         return documentDao.getDocumentById(id);
     }
 
-    public ConcreteDocumentDto openDocumentById(Long id){
-        return concreteDocumentDao.getLastVersion(id);
-    }
-
     public List<ConcreteDocumentDto> getAllVersionsById(Long id){
-        return concreteDocumentDao.getAllVersions(id);
+        if (!accessService.chekRAccess(id))
+            throw new AccessDeniedException("Access error");
+        return documentDao.getAllVersions(id);
     }
 
     public DocumentDto saveNewDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto){
+        if (!accessService.chekRWAccess(documentDto.getParentId()))
+            throw new AccessDeniedException("Access error");
         documentDto.setUserCreatedById(userService.getCurrentUser().getId());
+        concreteDocumentDto.setUserModifiedBy(userService.getCurrentUser().getId());
         return documentDao.addNewDocument(documentDto, concreteDocumentDto);
     }
 
-    public List<ConcreteDocumentDto> getAllVersions(Long id){
-        return concreteDocumentDao.getAllVersions(id);
-    }
-
-
-    public ConcreteDocumentDto modifyDocument(ConcreteDocumentDto concreteDocumentDto){
-        concreteDocumentDao.addNewVersion(concreteDocumentDto);
-        return concreteDocumentDto;
-    }
-
-    public List<DocumentTypeDto> getAllDocumentTypes(){
-        return documentTypeDao.getAllDocumentTypes();
-    }
-
-    public DocumentTypeDto addDocumentType(String name){
-        return documentTypeDao.addNewDocumentType(DocumentTypeDto.builder().name(name).build());
+    public DocumentDto modifyDocument(ConcreteDocumentDto concreteDocumentDto){
+        if (!accessService.chekRWAccess(concreteDocumentDto.getParentDocumentId()))
+            throw new AccessDeniedException("Access error");
+        concreteDocumentDto.setUserModifiedBy(userService.getCurrentUser().getId());
+        return documentDao.modifyDocument(concreteDocumentDto);
     }
 
     public void deleteDocumentById(Long id){
+        if (!accessService.chekRWAccess(id))
+            throw new AccessDeniedException("Access error");
         documentDao.deleteDocument(id);
     }
 }

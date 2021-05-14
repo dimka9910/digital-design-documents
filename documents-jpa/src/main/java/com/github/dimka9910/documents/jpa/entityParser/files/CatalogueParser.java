@@ -30,8 +30,8 @@ public class CatalogueParser {
         return CatalogueDto.builder()
                 .id(catalogue.getId())
                 .createdTime(new Timestamp(catalogue.getCreatedTime().getTime()))
-                .userCreatedById(catalogue.getUserCreatedBy().getId())
-                .parentId(catalogue.getParentCatalogue().getId())
+                .userCreatedById(catalogue.getUserCreatedBy() == null ? null : catalogue.getUserCreatedBy().getId())
+                .parentId(catalogue.getParentCatalogue() == null ? null : catalogue.getParentCatalogue().getId())
                 .name(catalogue.getName()).typeOfFile("CATALOGUE").build();
     }
 

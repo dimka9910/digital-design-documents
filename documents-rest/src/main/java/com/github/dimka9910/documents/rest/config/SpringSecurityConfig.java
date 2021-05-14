@@ -20,12 +20,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/register").permitAll()//not().fullyAuthenticated()
-                .antMatchers("/user/getcurrent").fullyAuthenticated()
-                .antMatchers("/catalogue").fullyAuthenticated()
-                .anyRequest()
-                .permitAll()
-//                .authenticated()
+                .antMatchers("/api/register").permitAll()
+                .antMatchers("/user/grantaccess/*").hasRole("ADMIN")
+                .anyRequest().fullyAuthenticated()
                 .and()
                 .httpBasic();
     }
@@ -33,7 +30,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService).passwordEncoder(NoOpPasswordEncoder.getInstance());
-//        auth.inMemoryAuthentication().withUser("john123").password("password").roles("USER");
     }
 
 }
