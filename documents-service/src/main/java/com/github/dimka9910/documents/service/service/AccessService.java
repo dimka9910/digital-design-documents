@@ -1,9 +1,8 @@
 package com.github.dimka9910.documents.service.service;
 
 import com.github.dimka9910.documents.dao.FileAbstractDao;
+import com.github.dimka9910.documents.dto.restdtos.ManageAccessDto;
 import com.github.dimka9910.documents.dto.user.UserDto;
-import com.github.dimka9910.documents.jpa.entity.files.FileAbstract;
-import com.github.dimka9910.documents.jpa.entity.user.User;
 import com.github.dimka9910.documents.jpa.entity.user.UserRolesEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -31,20 +30,10 @@ public class AccessService {
         return (fileAbstractDaoJpa.checkRAccess(id) || fileAbstractDaoJpa.checkRWAccess(id));
     }
 
-    public List<UserDto> modifyFileAccess(Long fileId, Long userId, boolean rw, boolean grant) {
-        if (!chekRWAccess(fileId))
+    public List<UserDto> modifyFileAccess(ManageAccessDto manageAccessDto) {
+        if (!chekRWAccess(manageAccessDto.getFileId()))
             throw new AccessDeniedException("You cant modify this file");
-
-        if (rw)
-            if (grant)
-                return fileAbstractDaoJpa.grantRWAccess(fileId, userId);
-            else
-                return fileAbstractDaoJpa.declineRWAccess(fileId, userId);
-        else
-            if (grant)
-                return fileAbstractDaoJpa.grantRAccess(fileId, userId);
-            else
-                return fileAbstractDaoJpa.declineRAccess(fileId, userId);
+        return fileAbstractDaoJpa.manageAccess(manageAccessDto);
     }
 
 

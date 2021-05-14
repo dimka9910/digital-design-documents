@@ -200,7 +200,7 @@ public DocumentDto addNewDocument(@RequestBody DocumentDto documentDto){
 
 Вот собственно такое нам надо на вход чтоб добавить новый документик
 
-```json
+```java
 {
   "parentId": 20, // Каталог в который добавляем
   "documentType": "fax", // тип файла (он возьмётся из БД если он там есть уже, 
