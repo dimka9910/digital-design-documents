@@ -1,0 +1,44 @@
+package com.github.dimka9910.documents.rest.files;
+
+import com.github.dimka9910.documents.dto.restdtos.ManageAccessDto;
+import com.github.dimka9910.documents.dto.user.UserDto;
+import com.github.dimka9910.documents.service.service.AccessService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/access")
+public class AccessRestController {
+
+    @Autowired
+    AccessService accessService;
+
+
+    /**
+     * EXAMPLE
+     *{
+     *   "access": "READ",
+     *   "modify": "DECLINE",
+     *   "fileId": 20,
+     *   "userId": 12
+     * }
+     */
+    @PostMapping
+    public List<UserDto> grantAccess(@RequestBody @Valid ManageAccessDto manageAccessDto){
+        return accessService.modifyFileAccess(manageAccessDto);
+    }
+
+    @GetMapping
+    public Map<String, Object> checkAccess(@RequestParam Long fileId){
+        Map<String, Object> rtn = new LinkedHashMap<>();
+        rtn.put("read", accessService.chekRAccess(fileId));
+        rtn.put("read_write", accessService.chekRWAccess(fileId));
+        return rtn;
+    }
+
+}

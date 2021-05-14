@@ -1,7 +1,7 @@
 package com.github.dimka9910.documents.jpa.daoImpl;
 
 import com.github.dimka9910.documents.dao.FileAbstractDao;
-import com.github.dimka9910.documents.dto.files.FileAbstractDto;
+import com.github.dimka9910.documents.dto.restdtos.ManageAccessDto;
 import com.github.dimka9910.documents.dto.user.UserDto;
 import com.github.dimka9910.documents.jpa.entity.files.FileAbstract;
 import com.github.dimka9910.documents.jpa.entity.user.User;
@@ -86,48 +86,29 @@ public class FileAbstractDaoJpa implements FileAbstractDao {
         return true;
     }
 
-
     @Override
     @Transactional
-    public List<UserDto> grantRAccess(Long fileId, Long userId) {
-        FileAbstract fileAbstract = fileAbstractRepository.findById(fileId).orElseThrow(IdNotFoundException::new);
-        User user = userRepository.findById(userId).orElseThrow(IdNotFoundException::new);
+    public List<UserDto> manageAccess(ManageAccessDto manageAccessDto) {
+        FileAbstract fileAbstract = fileAbstractRepository.findById(manageAccessDto.getFileId()).orElseThrow(IdNotFoundException::new);
+        User user = userRepository.findById(manageAccessDto.getUserId()).orElseThrow(IdNotFoundException::new);
         em.merge(fileAbstract);
         em.merge(user);
-        fileAbstract.getReadPermissionUsers().add(user);
-        return userParser.fromList(new ArrayList<>(fileAbstract.getReadPermissionUsers()));
+
+        if (manageAccessDto.getAccess() == ManageAccessDto.TypeOfAccess.READ){
+            if (manageAccessDto.getModify() == ManageAccessDto.TypeOfModifying.GRANT){
+                fileAbstract.getReadPermissionUsers().add(user);
+            } else {
+                fileAbstract.getReadPermissionUsers().remove(user);
+            }
+            return userParser.fromList(new ArrayList<>(fileAbstract.getReadPermissionUsers()));
+        } else {
+            if (manageAccessDto.getModify() == ManageAccessDto.TypeOfModifying.GRANT){
+                fileAbstract.getReadWritePermissionUsers().add(user);
+            } else {
+                fileAbstract.getReadWritePermissionUsers().remove(user);
+            }
+            return userParser.fromList(new ArrayList<>(fileAbstract.getReadWritePermissionUsers()));
+        }
     }
 
-    @Override
-    @Transactional
-    public List<UserDto> grantRWAccess(Long fileId, Long userId) {
-        FileAbstract fileAbstract = fileAbstractRepository.findById(fileId).orElseThrow(IdNotFoundException::new);
-        User user = userRepository.findById(userId).orElseThrow(IdNotFoundException::new);
-        em.merge(fileAbstract);
-        em.merge(user);
-        fileAbstract.getReadWritePermissionUsers().add(user);
-        return userParser.fromList(new ArrayList<>(fileAbstract.getReadWritePermissionUsers()));
-    }
-
-    @Override
-    @Transactional
-    public List<UserDto> declineRAccess(Long fileId, Long userId) {
-        FileAbstract fileAbstract = fileAbstractRepository.findById(fileId).orElseThrow(IdNotFoundException::new);
-        User user = userRepository.findById(userId).orElseThrow(IdNotFoundException::new);
-        em.merge(fileAbstract);
-        em.merge(user);
-        fileAbstract.getReadPermissionUsers().remove(user);
-        return userParser.fromList(new ArrayList<>(fileAbstract.getReadPermissionUsers()));
-    }
-
-    @Override
-    @Transactional
-    public List<UserDto> declineRWAccess(Long fileId, Long userId) {
-        FileAbstract fileAbstract = fileAbstractRepository.findById(fileId).orElseThrow(IdNotFoundException::new);
-        User user = userRepository.findById(userId).orElseThrow(IdNotFoundException::new);
-        em.merge(fileAbstract);
-        em.merge(user);
-        fileAbstract.getReadWritePermissionUsers().remove(user);
-        return userParser.fromList(new ArrayList<>(fileAbstract.getReadWritePermissionUsers()));
-    }
 }
