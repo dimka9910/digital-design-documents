@@ -1,6 +1,7 @@
 package com.github.dimka9910.documents.jpa.entity.files;
 
 import com.github.dimka9910.documents.jpa.entity.files.catalogues.Catalogue;
+import com.github.dimka9910.documents.jpa.entity.files.documents.ConcreteDocument;
 import com.github.dimka9910.documents.jpa.entity.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;

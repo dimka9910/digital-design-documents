@@ -6,9 +6,11 @@ import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.jpa.entity.files.catalogues.Catalogue;
 import com.github.dimka9910.documents.jpa.entityParser.files.CatalogueParser;
 import com.github.dimka9910.documents.jpa.entityParser.files.DocumentParser;
+import com.github.dimka9910.documents.jpa.exceprions.ConstraintsException;
 import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
 import com.github.dimka9910.documents.jpa.repository.CatalogueRepository;
 import com.github.dimka9910.documents.jpa.repository.DocumentRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Component("catalogueDaoJpa")
+@Slf4j
 public class CatalogueDaoJpa implements CatalogueDao {
 
     @Autowired
@@ -54,6 +57,7 @@ public class CatalogueDaoJpa implements CatalogueDao {
     }
 
     @Override
+    @Transactional
     public List<FileAbstractDto> getAllChildren(Long id) {
         List<FileAbstractDto> list = new LinkedList<>();
         list.addAll(catalogueParser.fromList(catalogueRepository.getChildrens(id)));
@@ -65,7 +69,12 @@ public class CatalogueDaoJpa implements CatalogueDao {
     @Override
     public CatalogueDto addCatalogue(CatalogueDto catalogueDto) {
         Catalogue catalogue = catalogueParser.DTOtoE(catalogueDto);
-        em.persist(catalogue);
+        try {
+            em.persist(catalogue);
+        } catch (Exception e){
+            log.error(e.getMessage());
+            throw new ConstraintsException();
+        }
         return catalogueParser.EtoDTO(catalogue);
     }
 

@@ -19,6 +19,7 @@ public class AccessRestController {
     AccessService accessService;
 
 
+
     /**
      * EXAMPLE
      *{
@@ -33,11 +34,11 @@ public class AccessRestController {
         return accessService.modifyFileAccess(manageAccessDto);
     }
 
-    @GetMapping
-    public Map<String, Object> checkAccess(@RequestParam Long fileId){
+    @GetMapping("/{id}")
+    public Map<String, Object> checkAccess(@PathVariable Long id){
         Map<String, Object> rtn = new LinkedHashMap<>();
-        rtn.put("read", accessService.chekRAccess(fileId));
-        rtn.put("read_write", accessService.chekRWAccess(fileId));
+        rtn.put("read", accessService.chekRAccess(id));
+        rtn.put("read_write", accessService.chekRWAccess(id));
         return rtn;
     }
 

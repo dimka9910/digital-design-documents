@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class MainTest {
+public class ApplicationTest {
 
     @Autowired
     CatalogueDaoJpa catalogueDaoJpa;

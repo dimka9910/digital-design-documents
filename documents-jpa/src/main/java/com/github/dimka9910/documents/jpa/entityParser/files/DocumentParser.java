@@ -53,7 +53,7 @@ public class DocumentParser {
                 .priority(document.getPriority().toString())
                 .userCreatedById(document.getUserCreatedBy() == null ? null : document.getUserCreatedBy().getId())
                 .typeOfFile("DOCUMENT")
-                .topVersionDocument(concreteDocumentParser.EtoDTO(document.getTopVersionDocument()))
+                .concreteDocument(concreteDocumentParser.EtoDTO(document.getTopVersionDocument()))
                 .build();
     }
 
@@ -74,10 +74,12 @@ public class DocumentParser {
                 null :
                 userRepository.findById(documentDto.getUserCreatedById()).orElseThrow(IdNotFoundException::new);
 
+        PriorityEnum priority = documentDto.getPriority() == null ?
+                PriorityEnum.DEFAULT : PriorityEnum.valueOf(documentDto.getPriority());
 
         Document document = new Document();
         document.setId(documentDto.getId());
-        document.setPriority(PriorityEnum.valueOf(documentDto.getPriority()));
+        document.setPriority(priority);
         document.setDocumentType(documentType);
 
         if (documentDto.getParentId() != null)
@@ -91,8 +93,9 @@ public class DocumentParser {
     public List<DocumentDto> fromList(List<Document> list) {
         List<DocumentDto> documentDto = new LinkedList<>();
         list.forEach(v -> {
-            v.setTopVersionDocument(null);
-            documentDto.add(EtoDTO(v));
+            DocumentDto documentDto1 = EtoDTO(v);
+            documentDto1.setConcreteDocument(null);
+            documentDto.add(documentDto1);
         });
         return documentDto;
     }

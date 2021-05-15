@@ -6,7 +6,10 @@ import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -25,20 +28,24 @@ public class CatalogueService {
         CatalogueDto catalogueDto;
         if (id == null)
             return catalogueDao.getRootCatalogue();
-        else{
+        else {
             if (!accessService.chekRAccess(id))
                 throw new AccessDeniedException("Access error");
             return catalogueDao.getCatalogueById(id);
         }
     }
 
-    public List<FileAbstractDto> getInnerCataloguesAndDocuments(Long id) {
+    public List<FileAbstractDto> getInnerCataloguesAndDocuments(Long id, String type, String name) {
         if (!accessService.chekRAccess(id))
             throw new AccessDeniedException("Access error");
 
-
-        List<FileAbstractDto> list = List.of();
-        list = catalogueDao.getAllChildren(id);
+        List<FileAbstractDto> list = catalogueDao.getAllChildren(id);
+        if (type != null)
+            list = list.stream().filter(v -> v.getTypeOfFile().equals(type.toUpperCase())).collect(Collectors.toList());
+        if (name != null) {
+            Pattern pattern = Pattern.compile(".*" + name + ".*", Pattern.CASE_INSENSITIVE);
+            list = list.stream().filter(v -> pattern.matcher(v.getName()).matches()).collect(Collectors.toList());
+        }
         return list;
     }
 
@@ -48,6 +55,17 @@ public class CatalogueService {
 
         if (id != catalogueDao.getRootCatalogue().getId())
             catalogueDao.deleteCatalogue(id);
+    }
+
+    public void deleteCatalogueByNameAndParentId(CatalogueDto catalogueDto) {
+        CatalogueDto catalogueDto1 = getInnerCataloguesAndDocuments(catalogueDto.getParentId(), null, null)
+                .stream()
+                .filter(v -> v.getTypeOfFile().equals("CATALOGUE")).map(v -> (CatalogueDto) v)
+                .filter(v -> v.getName().equals(catalogueDto.getName())).
+                        findAny().orElse(null);
+
+        assert catalogueDto1 != null;
+        deleteCatalogueById(catalogueDto1.getId());
     }
 
     public CatalogueDto createCatalogue(CatalogueDto children) {

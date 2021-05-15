@@ -12,13 +12,13 @@ public class DocumentDto extends FileAbstractDto {
     private String documentType;
     private String priority;
 
-    private ConcreteDocumentDto topVersionDocument;
+    private ConcreteDocumentDto concreteDocument;
 
     @Builder
-    public DocumentDto(Long id, Long parentId, Timestamp createdTime, Long userCreatedById, String name, String typeOfFile, String documentType, String priority, ConcreteDocumentDto topVersionDocument) {
+    public DocumentDto(Long id, Long parentId, Timestamp createdTime, Long userCreatedById, String name, String typeOfFile, String documentType, String priority, ConcreteDocumentDto concreteDocument) {
         super(id, parentId, createdTime, userCreatedById, name, typeOfFile);
         this.documentType = documentType;
         this.priority = priority;
-        this.topVersionDocument = topVersionDocument;
+        this.concreteDocument = concreteDocument;
     }
 }

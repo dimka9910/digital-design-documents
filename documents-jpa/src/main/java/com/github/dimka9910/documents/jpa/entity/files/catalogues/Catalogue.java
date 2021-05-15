@@ -1,11 +1,13 @@
 package com.github.dimka9910.documents.jpa.entity.files.catalogues;
 
 import com.github.dimka9910.documents.jpa.entity.files.FileAbstract;
+import com.github.dimka9910.documents.jpa.entity.files.documents.ConcreteDocument;
 import com.github.dimka9910.documents.jpa.entity.user.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -19,4 +21,9 @@ import java.util.List;
         })
 public class Catalogue extends FileAbstract {
     private String name;
+
+    @OneToMany(mappedBy = "parentCatalogue",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.REMOVE)
+    private List<FileAbstract> concreteDocuments = new ArrayList<>();;
 }
