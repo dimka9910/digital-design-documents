@@ -99,7 +99,7 @@ RESPONSE EXAMPLE:
 
 > GET `/catalogue/open/{id}?type=...&name=...&documentType=...`
 
-request with to non required parameters
+request with three non required parameters
 
 - `type` - CATALOGUE/DOCUMENT (not case-sensitive)
 - `name` - name of file, or substring of name of file (not case-sensitive)
@@ -736,7 +736,7 @@ This endpoint is accessible only for ADMIN user, because this type of search ign
 
 > GET`globalsearch/documents?page=..&pageSize=..&documentType=...&name=...`
 
-request with to non required parameters
+request with four non required parameters
 
 - `page` - number of page (starts with 0)
 - `pageSize` - size of each page
@@ -871,7 +871,7 @@ RESPONSE EXAMPLE:
 
 > GET`globalsearch/catalogue?page=..&pageSize=..&name=...`
 
-request with to non required parameters
+request with three non required parameters
 
 - `page` - number of page (starts with 0)
 - `pageSize` - size of each page
