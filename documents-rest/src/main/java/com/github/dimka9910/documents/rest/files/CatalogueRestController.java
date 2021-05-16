@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -38,7 +39,7 @@ public class CatalogueRestController {
     @PostMapping(value = "",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public CatalogueDto addCatalogue(@RequestBody CatalogueDto catalogueDto){
+    public CatalogueDto addCatalogue(@RequestBody @Valid CatalogueDto catalogueDto){
         return catalogueService.createCatalogue(catalogueDto);
     }
 

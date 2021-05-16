@@ -4,14 +4,17 @@ import com.github.dimka9910.documents.dto.files.FileAbstractDto;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 
 @Data
 public class DocumentDto extends FileAbstractDto {
+    @NotBlank
     private String documentType;
     private String priority;
-
+    @NotNull
     private ConcreteDocumentDto concreteDocument;
 
     @Builder

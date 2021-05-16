@@ -1,4 +1,4 @@
-# README
+# DIGITAL DESIGN DOCUMENTS PROJECT
 
 # Реализованные требования
 
@@ -9,7 +9,7 @@
 5. Получение списка версий документа.
 6. Сохранение каталогов.
 7. Поиск объектов по родителю/названию/типу(каталог/документ). 
-8. paging.
+8. Paging.
 9. Сохранение настроек(типы документов). 
 10. Фильтрация документов по типу при поиске.
 11. Проверка прав доступа при: получении/поиске объектов, сохранении объектов
@@ -19,21 +19,25 @@
 
 # Запуск приложения
 
-Перед запуском приложения необходимо изменить данные о базе данных в `application.properies` в app модуле в русурсах. 
+Перед запуском приложения необходимо изменить данные о базе данных в `application.properies` в app модуле в ресурсах. 
 
 При первом запуске автоматически добавятся:
 
 - Новый пользователь с параметрами "`login`"  "`password`" и ролью "`ADMIN`"
 - Каталог "`root`"
 
-# Oписание схемы ролей и прав доступа.
+# Тестирование
+
+Все тесты для rest api находятся в `app` модуле, представляют собой интеграционные тесты выполненные с помощью `TestRestTemplate`.
+
+# Описание схемы ролей и прав доступа.
 
 **Admin -** имеет право просматривать и редактировать любой файл, так же только ADMIN может назначить другому пользователю роль ADMIN.
 
 **User -** имеет право просматривать любой каталог и документ, если на данном документе/каталоге или любом из родительских каталогах нет ограничение на READ. 
 Не имеет права по умолчанию редактировать/создавать документ/каталог в любом из каталогов, кроме случаев когда он является создателем данного документа/каталога и/или имеет права на READ_WRITE на данный документ/каталог либо на любой из родительских каталогов. 
 
-Каждый документ/каталог имеет `set` пользователей на чтение, и `set` пользователей на чтение и запись. Если READ set пустой, значит данный документ/каталог не имеет ограничений на чтение, и просматривать его может любой (в случае если все родительские каталоги впоть до root каталога так же имеют READ set пустым)
+Каждый документ/каталог имеет `set` пользователей на чтение, и `set` пользователей на чтение и запись. Если READ set пустой, значит данный документ/каталог не имеет ограничений на чтение, и просматривать его может любой (в случае если все родительские каталоги вплоть до root каталога так же имеют READ set пустым)
 в противном случае файл имеет ограничения на чтение.
 
 При каждом обращение к файлу проверяется соответствующие права доступа данного пользователя на файл:
@@ -49,7 +53,7 @@
 
 - Пользователь удовлетворяет любому из условий "для записи"
 - Пользователь присутствует в Read set данного документа/каталога либо любого из родительских каталогов
-- Данный документ/каталог и каждый из родительских каталогов вполть до root имеет пустой READ set
+- Данный документ/каталог и каждый из родительских каталогов вплоть до root имеет пустой READ set
 
 Изменять права доступа на файл может только пользователь удовлетворяющий условию READWRITE access либо имеющий роль ADMIN.
 
@@ -93,15 +97,15 @@ RESPONSE EXAMPLE:
 }
 ```
 
-> GET `/catalogue/open/id?type=...&name=...&documentType=...`
+> GET `/catalogue/open/{id}?type=...&name=...&documentType=...`
 
-request with to non reqyired parameters
+request with to non required parameters
 
-- `type` - CATALOGUE/DOCUMENT (not case sensitive)
-- `name` - name of file, or substring of name of file (not case sensitive)
+- `type` - CATALOGUE/DOCUMENT (not case-sensitive)
+- `name` - name of file, or substring of name of file (not case-sensitive)
 - `documentType` - it shows only documents with specified type.
 
-this request returns list of file and documents which are located in catalogue.
+this request returns list of file and documents which are located in the catalogue.
 
 RESPONSE EXAMPLE:
 
@@ -375,14 +379,14 @@ RESPONSE EXAMPLE:
 
 > **POST** `/documents`
 
-- adds new document and its first version.
+- adds a new document and its first version.
 
 REQUEST BODY EXAMPLE:
 
 you have to specify
 
 - parentId - parent catalogue id
-- documentType - name of document type, not case sensitive, if it isn't exists in document_type table, then there will be created a new record of your new document type, otherwise it will refer on existing document type
+- documentType - name of document type, not case-sensitive, if it isn't exists in document_type table, then there will be created a new record of your new document type, otherwise it will refer on existing document type
 - priority (not required) - "LOW", "DEFAULT" "HIGH"
 - concreteDocument - it is an initial version of document with parameters that can be changed in the future by creation of new versions
     - name
@@ -542,7 +546,7 @@ RESPONSE EXAMPLE:
 
 > **POST**`/user/register`
 
-- accessible for everyone. allows to add new user with role "USER" in database
+- accessible for everyone. allows adding new user with the role "USER" in a database.
 
 REQUEST BODY EXAMPLE:
 
@@ -566,7 +570,7 @@ RESPONSE EXAMPLE:
 
 > **POST**`/user/grantaccess`
 
-- accessible only for ADMINs. allows to modify role of any user
+- accessible only for ADMINs. allows modifying role of any user.
 
 REQUEST BODY EXAMPLE:
 
@@ -590,7 +594,7 @@ RESPONSE EXAMPLE:
 
 > **GET**`/user/current`
 
-- allows to get current user
+- allows getting current user
 
 RESPONSE EXAMPLE:
 
@@ -665,7 +669,7 @@ RESPONSE EXAMPLE:
 
 > **GET** `/access/{id}`
 
-- allows to check which access rights current user has on certain file
+- is to check which access rights current user has on certain file
 
 RESPONSE EXAMPLE:
 
@@ -678,8 +682,8 @@ RESPONSE EXAMPLE:
 
 > **POST** `/access`
 
-- allows to modify access rights to concrete file for certain user
-- accesible only for one, who has READ_WRITE access to this file
+- is to modify access rights to concrete file for certain user
+- accessible only for one, who has READ_WRITE access to this file
 
 With parameters:
 
@@ -726,17 +730,17 @@ in the response we'll see list of users who has access to read or readwrite (dep
 
 ## `/globalsearch`
 
-This enpoint is accessible only for ADMIN user, because this type of search ignores whole catalogue structure (so access levels too), and search directly in database by specified parameters. 
+This endpoint is accessible only for ADMIN user, because this type of search ignores whole catalogue structure (so access levels too), and search directly in database by specified parameters. 
 
  
 
 > GET`globalsearch/documents?page=..&pageSize=..&documentType=...&name=...`
 
-request with to non reqyired parameters
+request with to non required parameters
 
 - `page` - number of page (starts with 0)
 - `pageSize` - size of each page
-- `documentType` - document type, case insensitive
+- `documentType` - document type, case-insensitive
 - `name` - name or part of name of document.
 
 this request returns page of last versions of documents filtered by name, document type, and ordered by priority.
@@ -867,11 +871,11 @@ RESPONSE EXAMPLE:
 
 > GET`globalsearch/catalogue?page=..&pageSize=..&name=...`
 
-request with to non reqyired parameters
+request with to non required parameters
 
 - `page` - number of page (starts with 0)
 - `pageSize` - size of each page
-- `name` - name or part of name of catalogue (case insensitive).
+- `name` - name or part of name of catalogue (case-insensitive).
 
 this request returns page of catalogues filtered by name ordered by name.
 

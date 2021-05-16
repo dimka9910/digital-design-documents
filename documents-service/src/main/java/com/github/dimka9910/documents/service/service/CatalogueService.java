@@ -94,11 +94,11 @@ public class CatalogueService {
     }
 
     public CatalogueDto modifyCatalogue(Long id, String name) {
-        if (id != catalogueDao.getRootCatalogue().getId()) {
-            catalogueDao.modifyCatalogue(CatalogueDto.builder().name(name).id(id).build());
-        }
-        if (!accessService.chekRWAccess(id))
+        if (!accessService.chekRWAccess(id) || id.equals(catalogueDao.getRootCatalogue().getId()))
             throw new AccessDeniedException("You cant modify this file");
+
+        catalogueDao.modifyCatalogue(CatalogueDto.builder().name(name).id(id).build());
+
         return catalogueDao.getCatalogueById(id);
     }
 

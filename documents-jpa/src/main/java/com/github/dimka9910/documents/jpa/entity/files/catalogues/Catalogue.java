@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,6 +21,8 @@ import java.util.List;
                 @UniqueConstraint(columnNames = {"name", "fk_parent"})
         })
 public class Catalogue extends FileAbstract {
+
+    @NotNull
     private String name;
 
     @OneToMany(mappedBy = "parentCatalogue",

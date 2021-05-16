@@ -9,6 +9,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,14 +31,17 @@ public class ConcreteDocument {
     private Long version;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @NotNull
     protected Date modifiedTime;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_user")
+    @NotNull
     protected User modifiedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_document")
+    @NotNull
     protected Document parent;
 
     @OneToMany(
