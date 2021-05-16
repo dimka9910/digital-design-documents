@@ -1,364 +1,720 @@
-# —
+# README
 
-# REST
+# Реализованные требования
 
-### AccessRestService
+1. приложение предоставляет rest api в формате json
+2. приложение запаковываетя в исполняемый jar файл
+3. предоставлено описание rest api в readme а так же через swagger.
+4. Создание документов и версий документа.
+5. Получение списка версий документа.
+6. Сохранение каталогов.
+7. Поиск объектов по родителю/названию/типу(каталог/документ). 
+8. paging. //!!!!!!!!!!!!!
+9. Сохранение настроек(типы документов). 
+10. Фильтрация документов по типу при поиске.
+11. Проверка прав доступа при: получении/поиске объектов, сохранении объектов
+12. Валидация объектов.
+13. Учитывается сортировка по степени важности для документов при поиске. ///!!!
+14. Назначение прав доступа на каталоги.
 
-Так происходит добавление/удаление пользователя из доступа на чтение/чтениезапись в файле  
+# Запуск приложения
 
-[`http://localhost:8080/access?rw=1&grant=1&file=25&user=12`](http://localhost:8080/access?rw=1&grant=1&file=25&user=12)
+Перед запуском приложения необходимо изменить данные о базе данных в `application.properies` находящимся в app модуле в русурсах. 
 
-```java
-/**
-     *
-     * @param rw - readWrite or Read
-     * @param grant - grant or decline
-     * @param file - id of file
-     * @param user - id of user who we are modifying access
-     * @return
-     */
-    @PostMapping
-    public List<UserDto> grantAccess(@RequestParam boolean rw,
-                                     @RequestParam boolean grant,
-                                     @RequestParam Long file,
-                                     @RequestParam Long user){
-        return accessService.modifyFileAccess(file, user, rw, grant);
-    }
-```
+При первом запуске автоматически добавятся:
 
-Опустим пару слоёв, и вот уже на слое  `FileAbstractDaoJpa` мы банально модифицируем set of R or RW access Users.  И  без разницы есть они уже в нём или нет их перед удалением, это сэт поэтому повторений не будет и ошибок на удаление не будет. 
-На выход получаем собственно сэт который мы модифицировали со списком юзеров которые теперь имеют права на то, что мы модифицировали (R or RW) 
+- Новый пользователь с параметрами "`login`"  "`password`" и ролью "`ADMIN`"
+- Каталог "`root`"
 
-```java
-@Override
-    @Transactional
-    public List<UserDto> grantRWAccess(Long fileId, Long userId) {
-        FileAbstract fileAbstract = fileAbstractRepository.findById(fileId).orElseThrow(IdNotFoundException::new);
-        User user = userRepository.findById(userId).orElseThrow(IdNotFoundException::new);
-        em.merge(fileAbstract);
-        em.merge(user);
-        fileAbstract.getReadWritePermissionUsers().add(user);
-        return userParser.fromList(new ArrayList<>(fileAbstract.getReadWritePermissionUsers()));
-    }
+# Описание схемы ролей и прав доступа.
 
-    @Override
-    @Transactional
-    public List<UserDto> declineRWAccess(Long fileId, Long userId) {
-        FileAbstract fileAbstract = fileAbstractRepository.findById(fileId).orElseThrow(IdNotFoundException::new);
-        User user = userRepository.findById(userId).orElseThrow(IdNotFoundException::new);
-        em.merge(fileAbstract);
-        em.merge(user);
-        fileAbstract.getReadWritePermissionUsers().remove(user);
-        return userParser.fromList(new ArrayList<>(fileAbstract.getReadWritePermissionUsers()));
-    }
-}
-```
+**Admin -** имеет право просматривать и редактировать любой файл, так же только ADMIN может назначить другому пользователю роль ADMIN.
 
-### AccessService
+**User -** имеет право просматривать любой каталог и документ, если на данном документе/каталоге или любом из родительских каталогах нет ограничение на READ. 
+Не имеет права по умолчанию редактировать/создавать документ/каталог в любом из каталогов, кроме случаев когда он является создателем данного документа/каталога и/или имеет права на READ_WRITE на данный документ/каталог либо на любой из родительских каталогов. 
 
-модифицировать права на файл может только имеющий на чтение запись права пользователь
+Каждый документ/каталог имеет `set` пользователей на чтение, и `set` пользователей на чтение и запись. Если READ set пустой, значит данный документ/каталог не имеет ограничений на чтение, и просматривать его может любой (в случае если все родительские каталоги впоть до root каталога так же имеют READ set пустым)
+в противном случае файл имеет ограничения на чтение.
 
-```java
+При каждом обращение к файлу проверяется соответствующие права доступа данного пользователя на файл:
 
-public List<UserDto> modifyFileAccess(Long fileId, Long userId, boolean rw, boolean grant) {
-        if (!chekRWAccess(fileId))
-            throw new AccessDeniedException("You cant modify this file");
+Для успешного доступа на запись достаточно выполнения одного из следующих условий:
 
-        if (rw)
-            if (grant)
-                return fileAbstractDaoJpa.grantRWAccess(fileId, userId);
-            else
-                return fileAbstractDaoJpa.declineRWAccess(fileId, userId);
-        else
-            if (grant)
-                return fileAbstractDaoJpa.grantRAccess(fileId, userId);
-            else
-                return fileAbstractDaoJpa.declineRAccess(fileId, userId);
-    }
-```
+- Пользователь имеет роль ADMIN
+- Пользователь является создателем данного документа/каталога
+- Пользователь является создателем любого из родительских каталогов
+- Пользователь присутствует в READWRITE set данного документа/каталога либо любого из родительских каталогов
 
-Админ может всё, остальное приходится проверять
+Для успешного доступа на чтения достаточно выполнения одного из следующих условий:
 
-```java
-public boolean chekRWAccess(Long id) {
-        if (userService.getCurrentUser().getRole().equals("ADMIN"))
-            return true;
-        return fileAbstractDaoJpa.checkRWAccess(id);
-    }
+- Пользователь удовлетворяет любому из условий "для записи"
+- Пользователь присутствует в Read set данного документа/каталога либо любого из родительских каталогов
+- Данный документ/каталог и каждый из родительских каталогов вполть до root имеет пустой READ set
 
-    public boolean chekRAccess(Long id) {
-        if (userService.getCurrentUser().getRole().equals("ADMIN"))
-            return true;
-        return (fileAbstractDaoJpa.checkRAccess(id) || fileAbstractDaoJpa.checkRWAccess(id));
-    }
-```
+Изменять права доступа на файл может только пользователь удовлетворяющий условию READWRITE access либо имеющий роль ADMIN.
 
-### FileAbstractDaoJpa
+# REST API DESCRIPTION
 
-тут достаточно понятно вроде описал алгоритм проверки прав доступа, происходит мудрёно, но даже не представляю как это можно сделать лучше, по крайней мере оно корректно отрабатывает.
+## ENDPOINTS
 
-```java
-/**
-     * Grant access to current user
-     * If current file (or any parent file) creator current user
-     * or
-     * If current user has permissions to read current file (or any of parent file)
-     *   (in other words he exists in any of ReadWritePermission lists)
-     *
-     */
-    @Override
-    @Transactional
-    public boolean checkRWAccess(Long id) {
-        FileAbstract fileAbstract = fileAbstractRepository.findById(id).orElseThrow(IdNotFoundException::new);
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        em.merge(fileAbstract);
-        em.merge(user);
-        while (fileAbstract != null){
-            if (user.equals(fileAbstract.getUserCreatedBy()) ||
-            fileAbstract.getReadWritePermissionUsers().contains(user))
-                return true;
-            else
-                fileAbstract = fileAbstract.getParentCatalogue();
-        }
-        return false;
-    }
+## `/catalogue`
 
-    /**
-     * Grant access to current user
-     * If current file (or any parent file) creator is current user
-     * or
-     * If current user has permissions to read current file (or any of parent file)
-     * or
-     * If current file and avery parent file (up to root) don't have restrictions on read
-     *   (in other words ReadPermission list empty for each)
-     *   coz by task Read permission for everyone by default
-     *
-     */
-    @Override
-    @Transactional
-    public boolean checkRAccess(Long id) {
-        FileAbstract fileAbstract = fileAbstractRepository.findById(id).orElseThrow(IdNotFoundException::new);
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        em.merge(fileAbstract);
-        em.merge(user);
-        while (fileAbstract != null){
-            if (user.equals(fileAbstract.getUserCreatedBy()) ||
-                    fileAbstract.getReadPermissionUsers().contains(user))
-                return true;
-            else if (fileAbstract.getReadPermissionUsers().size() == 0)
-                fileAbstract = fileAbstract.getParentCatalogue();
-            else
-                return false;
-        }
-        return true;
-    }
-```
+> GET `/catalogue/{id}`
 
-Как можно заметить SecurityContextHolder у меня вызывается на Jpa слое, не знаю на сколько это уместно там, но именно там он мне только нужен, ведь далее наверх идут только ДТОшки
+- returns catalogue by id if user has access to read it
 
-### DocumentService
+RESPONSE EXAMPLE:
 
-то же самое распространяется и на CatalogueService
-перед каждым соответствующем читающим или модифицирующим методом вызывается соответственно R or RW access checker, по айдишнику документа, айдишник пользователя который это вызывает получается как я и писал ранее на JPA слое 
-
-```java
-public DocumentDto getDocumentById(Long id){
-        if (!accessService.chekRAccess(id))
-            throw new AccessDeniedException("Access error");
-        return documentDao.getDocumentById(id);
-    }
-
-    public List<ConcreteDocumentDto> getAllVersionsById(Long id){
-        if (!accessService.chekRAccess(id))
-            throw new AccessDeniedException("Access error");
-        return documentDao.getAllVersions(id);
-    }
-
-    public DocumentDto saveNewDocument(DocumentDto documentDto, ConcreteDocumentDto concreteDocumentDto){
-        if (!accessService.chekRWAccess(documentDto.getParentId()))
-            throw new AccessDeniedException("Access error");
-        documentDto.setUserCreatedById(userService.getCurrentUser().getId());
-        concreteDocumentDto.setUserModifiedBy(userService.getCurrentUser().getId());
-        return documentDao.addNewDocument(documentDto, concreteDocumentDto);
-    }
-```
-
----
-
----
-
----
-
-# DocumentRestController
-
-```java
-@PostMapping
-public DocumentDto addNewDocument(@RequestBody DocumentDto documentDto){
- return documentService.saveNewDocument(documentDto, documentDto.getTopVersionDocument());
-}
-```
-
-Вот собственно такое нам надо на вход чтоб добавить новый документик
-
-```java
+```json
 {
-  "parentId": 20, // Каталог в который добавляем
-  "documentType": "fax", // тип файла (он возьмётся из БД если он там есть уже, 
-												//либо создастся новый
-  "priority": "HIGH", // приоритет (енум)
-  "topVersionDocument": {   // ну и это вот как поле конкретного документа посылается
-												
-    "name": "newDoc_new",
-    "description": "descr_new",
-    "data": [   // а это вот вложенные файлы 
-							// это объекты всё, они отдельно в БЖ хранятся 
-						// (читай ниже)
+"id": 63,
+"parentId": 1,
+"createdTime": "2021-05-15T18:54:11.625+00:00",
+"userCreatedById": 1,
+"name": "children_of_root",
+"typeOfFile": "CATALOGUE"
+}
+```
+
+> GET `/catalogue/root`
+
+- returns root catalogue
+
+RESPONSE EXAMPLE:
+
+```json
+{
+"id": 1,
+"parentId": null,
+"createdTime": "2021-05-12T13:47:39.800+00:00",
+"userCreatedById": null,
+"name": "root",
+"typeOfFile": "CATALOGUE"
+}
+```
+
+> GET `/catalogue/open/id?type=...&name=...`
+
+request with to non reqyired parameters
+
+- `Type` - CATALOGUE/DOCUMENT (not case sensitive)
+- `Name` - name of file, or substring of name of file (not case sensitive)
+
+this request returns list of file and documents which are located in catalogue.
+
+RESPONSE EXAMPLE:
+
+```json
+[
+  {
+    "id": 63,
+    "parentId": 1,
+    "createdTime": "2021-05-15T18:54:11.625+00:00",
+    "userCreatedById": 1,
+    "name": "children_of_root",
+    "typeOfFile": "CATALOGUE"
+  },
+  {
+    "id": 24,
+    "parentId": 1,
+    "createdTime": "2021-05-13T20:43:10.005+00:00",
+    "userCreatedById": 2,
+    "name": "newDoc_mod2",
+    "typeOfFile": "DOCUMENT",
+    "documentType": "simplydoc",
+    "priority": "LOW",
+    "concreteDocument": null
+  },
+  {
+    "id": 23,
+    "parentId": 1,
+    "createdTime": "2021-05-13T20:26:51.931+00:00",
+    "userCreatedById": 2,
+    "name": "newDoc_mod3",
+    "typeOfFile": "DOCUMENT",
+    "documentType": "simplydoc",
+    "priority": "LOW",
+    "concreteDocument": null
+  }
+]
+```
+
+> **POST** `/catalogue`
+
+- saves new catalogue in specified catalogue if user has READWRITE access rights.
+
+REQUEST BODY EXAMPLE:
+
+```json
+{
+  "parentId": 63,
+  "name": "children_of_63"
+}
+```
+
+RESPONSE EXAMPLE:
+
+```json
+{
+"id": 64,
+"parentId": 63,
+"createdTime": "2021-05-15T19:12:17.554+00:00",
+"userCreatedById": 1,
+"name": "children_of_63",
+"typeOfFile": "CATALOGUE"
+}
+```
+
+> **POST** `/catalogue/modify`
+
+- modify catalogue if user has READWRITE access rights.
+
+REQUEST BODY EXAMPLE:
+
+```json
+{
+  "id": 64,
+  "name": "children_of_63_mod"
+}
+```
+
+RESPONSE EXAMPLE:
+
+```json
+{
+"id": 64,
+"parentId": 63,
+"createdTime": "2021-05-15T19:12:17.554+00:00",
+"userCreatedById": 1,
+"name": "children_of_63_mod",
+"typeOfFile": "CATALOGUE"
+}
+```
+
+> **DELETE**`/catalogue/{id}`
+
+- deletes catalogue by id if user has READWRITE access rights.
+
+---
+
+---
+
+## `/documents`
+
+> GET `/documents/{id}`
+
+- returns last version of document by id if user has access to read it
+
+RESPONSE EXAMPLE:
+
+```json
+
+ {
+  "id": 12,
+  "parentId": 1,
+  "createdTime": "2021-05-12T14:31:15.888+00:00",
+  "userCreatedById": 1,
+  "name": "newDoc_mod2",
+  "typeOfFile": "DOCUMENT",
+  "documentType": "fax",
+  "priority": "LOW",
+  "concreteDocument": {
+    "id": 19,
+    "name": "newDoc_mod2",
+    "description": "descr_mod2",
+    "version": 3,
+    "modifiedTime": "2021-05-13T20:01:56.020+00:00",
+    "userModifiedBy": 2,
+    "parentDocumentId": 12,
+    "data": [
       {
-        "path": "paaa"
+        "id": 49,
+        "name": "paaa",
+        "size": 4,
+        "path": "paaa",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-13T20:01:56.022+00:00"
       },
       {
-        "path": "ptthhhhh12"
+        "id": 50,
+        "name": "ptthhhhh12",
+        "size": 10,
+        "path": "ptthhhhh12",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-13T20:01:56.022+00:00"
       },
       {
-        "path": "paa3"
+        "id": 51,
+        "name": "paa3",
+        "size": 4,
+        "path": "paa3",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-13T20:01:56.022+00:00"
       }
     ]
   }
 }
 ```
 
-Это мы на респонс получаем от пост запроса.
+> GET `/documents/{id}/versions`
+
+- returns all version of document by id if user has access to read it
+
+RESPONSE EXAMPLE:
+
+```json
+[
+  {
+    "id": 11,
+    "name": "newDoc",
+    "description": "descr",
+    "version": 1,
+    "modifiedTime": "2021-05-12T14:31:15.888+00:00",
+    "userModifiedBy": 1,
+    "parentDocumentId": 12,
+    "data": [
+      {
+        "id": 31,
+        "name": "paaatthhhhh11",
+        "size": 13,
+        "path": "paaatthhhhh11",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-12T14:31:15.903+00:00"
+      },
+      {
+        "id": 32,
+        "name": "paaatthhhhh12",
+        "size": 13,
+        "path": "paaatthhhhh12",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-12T14:31:15.903+00:00"
+      },
+      {
+        "id": 33,
+        "name": "paaatthhhhh13",
+        "size": 13,
+        "path": "paaatthhhhh13",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-12T14:31:15.903+00:00"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "name": "newDoc_mod1",
+    "description": "descr_mod1",
+    "version": 2,
+    "modifiedTime": "2021-05-13T20:01:11.719+00:00",
+    "userModifiedBy": 2,
+    "parentDocumentId": 12,
+    "data": [
+      {
+        "id": 46,
+        "name": "paaatthhhhh11",
+        "size": 13,
+        "path": "paaatthhhhh11",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-13T20:01:11.720+00:00"
+      },
+      {
+        "id": 47,
+        "name": "paaatthhhhh12",
+        "size": 13,
+        "path": "paaatthhhhh12",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-13T20:01:11.720+00:00"
+      },
+      {
+        "id": 48,
+        "name": "paaatthhhhh13",
+        "size": 13,
+        "path": "paaatthhhhh13",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-13T20:01:11.720+00:00"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "name": "newDoc_mod2",
+    "description": "descr_mod2",
+    "version": 3,
+    "modifiedTime": "2021-05-13T20:01:56.020+00:00",
+    "userModifiedBy": 2,
+    "parentDocumentId": 12,
+    "data": [
+      {
+        "id": 49,
+        "name": "paaa",
+        "size": 4,
+        "path": "paaa",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-13T20:01:56.022+00:00"
+      },
+      {
+        "id": 50,
+        "name": "ptthhhhh12",
+        "size": 10,
+        "path": "ptthhhhh12",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-13T20:01:56.022+00:00"
+      },
+      {
+        "id": 51,
+        "name": "paa3",
+        "size": 4,
+        "path": "paa3",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-13T20:01:56.022+00:00"
+      }
+    ]
+  }
+]
+```
+
+> **POST** `/documents`
+
+- adds new document and its first version.
+
+REQUEST BODY EXAMPLE:
+
+you have to specify
+
+- parentId - parent catalogue id
+- documentType - name of document type, not case sensitive, if it isn't exists in document_type table, then there will be created a new record of your new document type, otherwise it will refer on existing document type
+- priority (not required) - "LOW", "DEFAULT" "HIGH"
+- concreteDocument - it is an initial version of document with parameters that can be changed in the future by creation of new versions
+    - name
+    - description
+    - data (not required) - array of objects which represents inner files of that concrete document with parameters
+        - path - file path
+        - name (not required)
+        - size (not required)
 
 ```json
 {
-"id": 32,
-"parentId": 20,
-"createdTime": "2021-05-14T10:00:27.093+00:00",
-"userCreatedById": 2,
-"name": "newDoc_new",
-"typeOfFile": "DOCUMENT",
-"documentType": "fax",
-"priority": "HIGH",
-	"topVersionDocument": {
-	"id": 25,
-	"name": "newDoc_new",
-	"description": "descr_new",
-	"version": 1,
-	"modifiedTime": "2021-05-14T10:00:27.093+00:00",
-	"userModifiedBy": 2,
-	"parentDocumentId": 32,
-		"data": [
-					  {
-					"id": 67,  // (вот они сохраняются, для них как то "условно" вычисляются 
-								// имя, размер, берётся текущее дата время и сохраняется в бд
-							// поля имя размер можно как бы и ручками передать изначально
-						// просто предусмотрено опять таки условное их заполнение
-						// надеюсь правильно понял твоё предложение с FilePath 
-						// полноценной настоящей прогрузки файлов на сервер у меня не сделано 
-					"name": "paaa",
-					"size": 4,
-					"path": "paaa",
-					"parentConcreteDocumentId": null,
-					"createdTime": "2021-05-14T10:00:27.149+00:00"
-					},
-					  {
-					"id": 68,
-					"name": "ptthhhhh12",
-					"size": 10,
-					"path": "ptthhhhh12",
-					"parentConcreteDocumentId": null,
-					"createdTime": "2021-05-14T10:00:27.149+00:00"
-					},
-					  {
-					"id": 69,
-					"name": "paa3",
-					"size": 4,
-					"path": "paa3",
-					"parentConcreteDocumentId": null,
-					"createdTime": "2021-05-14T10:00:27.149+00:00"
-					}
-		],
-	}
+  "parentId": 63,
+  "documentType": "newfax",
+  "priority": "HIGH",
+  "concreteDocument": {
+    "name": "newDoc_new",
+    "description": "descr_new",
+    "data": [
+      {
+        "path": "pa/a/a"
+      },
+      {
+        "path": "pt/thhh/hh12"
+      }
+    ]
+  }
 }
 ```
 
-### Modify
-
-```java
-@PostMapping("/modify")
-public DocumentDto modifyDocument(@RequestBody ConcreteDocumentDto concreteDocumentDto){
-     return documentService.modifyDocument(concreteDocumentDto);
-}
-```
-
-тут на вход уже просто конкретный документ с прописанным родительским документом 
+RESPONSE EXAMPLE:
 
 ```json
 {
-  "name": "newDoc_mod3",
-  "description": "mod_by_userid12",
-  "parentDocumentId": 32,
+  "id": 66,
+  "parentId": 63,
+  "createdTime": "2021-05-15T19:34:22.930+00:00",
+  "userCreatedById": 1,
+  "name": "newDoc_new",
+  "typeOfFile": "DOCUMENT",
+  "documentType": "newfax",
+  "priority": "HIGH",
+  "concreteDocument": {
+    "id": 30,
+    "name": "newDoc_new",
+    "description": "descr_new",
+    "version": 1,
+    "modifiedTime": "2021-05-15T19:34:22.930+00:00",
+    "userModifiedBy": 1,
+    "parentDocumentId": 66,
+    "data": [
+      {
+        "id": 82,
+        "name": "pa/a/a",
+        "size": 6,
+        "path": "pa/a/a",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-15T19:34:22.930+00:00"
+      },
+      {
+        "id": 83,
+        "name": "pt/thhh/hh12",
+        "size": 12,
+        "path": "pt/thhh/hh12",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-15T19:34:22.930+00:00"
+      }
+    ]
+  }
+}
+```
+
+> **POST** `/documents/modify`
+
+- adds new document version.
+
+REQUEST BODY EXAMPLE:
+
+```json
+{
+  "name": "mod_66",
+  "description": "this is modified document",
+  "parentDocumentId": 66,
   "data": [
     {
-      "path": "paaa/pat"
+      "name": "new_file",
+      "path": "file/1"
     },
     {
-      "path": "ptthhhhh12/12"
+      "path": "file/2"
     },
     {
-      "path": "paa3/12"
+      "path": "file/3"
     }
   ]
 }
 ```
 
-тут соответственно так же чекаются права доступа
-12й юзер имел права RW на 20й каталог, поэтому он может модифаить 32й док, поэтому тут же видно что док создан 2м юзером, а 3я версия создана 12м юзером 
+RESPONSE EXAMPLE:
 
 ```json
 {
-"id": 32,
-"parentId": 20,
-"createdTime": "2021-05-14T10:00:27.093+00:00",
-"userCreatedById": 2,
-"name": "newDoc_mod3",
-"typeOfFile": "DOCUMENT",
-"documentType": "fax",
-"priority": "HIGH",
-	"topVersionDocument": {
-	"id": 28,
-	"name": "newDoc_mod3",
-	"description": "mod_by_userid12",
-	"version": 3,
-	"modifiedTime": "2021-05-14T10:15:12.290+00:00",
-	"userModifiedBy": 12,
-	"parentDocumentId": 32,
-		"data": [
-			  {
-			"id": 76,
-			"name": "paaa/pat",
-			"size": 8,
-			"path": "paaa/pat",
-			"parentConcreteDocumentId": null,
-			"createdTime": "2021-05-14T10:15:12.290+00:00"
-			},
-			  {
-			"id": 77,
-			"name": "ptthhhhh12/12",
-			"size": 13,
-			"path": "ptthhhhh12/12",
-			"parentConcreteDocumentId": null,
-			"createdTime": "2021-05-14T10:15:12.290+00:00"
-			},
-			  {
-			"id": 78,
-			"name": "paa3/12",
-			"size": 7,
-			"path": "paa3/12",
-			"parentConcreteDocumentId": null,
-			"createdTime": "2021-05-14T10:15:12.290+00:00"
-			}
-		],
-	}
+  "id": 66,
+  "parentId": 63,
+  "createdTime": "2021-05-15T19:34:22.930+00:00",
+  "userCreatedById": 1,
+  "name": "mod_66",
+  "typeOfFile": "DOCUMENT",
+  "documentType": "newfax",
+  "priority": "HIGH",
+  "concreteDocument": {
+    "id": 31,
+    "name": "mod_66",
+    "description": "this is modified document",
+    "version": 2,
+    "modifiedTime": "2021-05-15T20:00:09.993+00:00",
+    "userModifiedBy": 1,
+    "parentDocumentId": 66,
+    "data": [
+      {
+        "id": 84,
+        "name": "new_file",
+        "size": 6,
+        "path": "file/1",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-15T20:00:09.993+00:00"
+      },
+      {
+        "id": 85,
+        "name": "file/2",
+        "size": 6,
+        "path": "file/2",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-15T20:00:09.993+00:00"
+      },
+      {
+        "id": 86,
+        "name": "file/3",
+        "size": 6,
+        "path": "file/3",
+        "parentConcreteDocumentId": null,
+        "createdTime": "2021-05-15T20:00:09.993+00:00"
+      }
+    ]
+  }
 }
+```
+
+> **DELETE**`/documents/{id}`
+
+- deletes catalogue by id if user has READWRITE access rights.
+
+---
+
+---
+
+## `/user`
+
+> **POST**`/user/register`
+
+- accessible for everyone. allows to add new user with role "USER" in database
+
+REQUEST BODY EXAMPLE:
+
+```json
+{
+  "login": "login10",
+  "password": "pass"
+}
+```
+
+RESPONSE EXAMPLE:
+
+```json
+{
+"id": 49,
+"login": "login10",
+"password": "$2y$10$.NfVS7FDg6EfYQh82JwHb.GgtZMvqyLUl.aRJl3JrXYR2uW9Lempi",
+"role": "USER"
+}
+```
+
+> **POST**`/user/grantaccess`
+
+- accessible only for ADMINs. allows to modify role of any user
+
+REQUEST BODY EXAMPLE:
+
+```json
+{
+  "id": 49,
+  "role": "ADMIN"
+}
+```
+
+RESPONSE EXAMPLE:
+
+```json
+{
+"id": 49,
+"login": "login10",
+"password": "$2y$10$.NfVS7FDg6EfYQh82JwHb.GgtZMvqyLUl.aRJl3JrXYR2uW9Lempi",
+"role": "USER"
+}
+```
+
+> **GET**`/user/current`
+
+- allows to get current user
+
+RESPONSE EXAMPLE:
+
+```json
+{
+"id": 49,
+"login": "login10",
+"password": "$2y$10$.NfVS7FDg6EfYQh82JwHb.GgtZMvqyLUl.aRJl3JrXYR2uW9Lempi",
+"role": "USER"
+}
+```
+
+---
+
+---
+
+## `/type`
+
+> **GET** `/type`
+
+- returns all document types
+
+RESPONSE EXAMPLE:
+
+```json
+[
+  {
+    "id": 4,
+    "name": "fax"
+  },
+  {
+    "id": 5,
+    "name": "simplydoc"
+  },
+  {
+    "id": 6,
+    "name": "newfax"
+  },
+  {
+    "id": 7,
+    "name": "mail"
+  }
+]
+```
+
+> **POST `/type`**
+
+- adds new document typ
+
+REQUEST BODY EXAMPLE:
+
+```json
+{
+  "name" : "mail"
+}
+```
+
+RESPONSE EXAMPLE:
+
+```json
+{
+"id": 7,
+"name": "mail"
+}
+```
+
+---
+
+---
+
+## `/access`
+
+> **GET** `/access/{id}`
+
+- allows to check which access rights current user has on certain file
+
+RESPONSE EXAMPLE:
+
+```json
+{
+"read": true,
+"read_write": false
+}
+```
+
+> **POST** `/access`
+
+- allows to modify access rights to concrete file for certain user
+- accesible only for one, who has READ_WRITE access to this file
+
+With parameters:
+
+- access - **`READWRITE`** or **`READ`**
+- modify - **`GRANT`** or **`DECLINE`**
+- fileId - Id of catalogue or document
+- userId - Id of user
+
+REQUEST BODY EXAMPLE:
+
+```json
+{
+  "access": "READWRITE",
+  "modify": "GRANT",
+  "fileId": 63,
+  "userId": 60
+}
+```
+
+RESPONSE EXAMPLE:
+
+in the response we'll see resule list of users who has access to read or readwrite (depending on what we modified) 
+
+```json
+[
+  {
+    "id": 60,
+    "login": "login3",
+    "password": "$2a$10$./AHJhUWebG1KYs/NZlHCuxaW5jeD0KKDQaIhmEeqta.eCduDX0bW",
+    "role": "USER"
+  },
+  {
+    "id": 2,
+    "login": "login2",
+    "password": "$2y$10$sn.Z5ig7Phob/URwKJQq.OVtBJmWkYVQ0ykvkpE4F0C7OTzAGXvKu",
+    "role": "USER"
+  }
+]
 ```

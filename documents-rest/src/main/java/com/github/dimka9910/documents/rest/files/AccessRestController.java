@@ -18,17 +18,6 @@ public class AccessRestController {
     @Autowired
     AccessService accessService;
 
-
-
-    /**
-     * EXAMPLE
-     *{
-     *   "access": "READ",
-     *   "modify": "DECLINE",
-     *   "fileId": 20,
-     *   "userId": 12
-     * }
-     */
     @PostMapping
     public List<UserDto> grantAccess(@RequestBody @Valid ManageAccessDto manageAccessDto){
         return accessService.modifyFileAccess(manageAccessDto);

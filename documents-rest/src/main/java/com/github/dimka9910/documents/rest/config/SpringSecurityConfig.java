@@ -30,8 +30,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
+                .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers("/user/register").permitAll()
-                .anyRequest().fullyAuthenticated()
+                .antMatchers("/users/grantaccess").hasAuthority("ADMIN")
+                .anyRequest().authenticated()
                 .and()
                 .httpBasic();
     }

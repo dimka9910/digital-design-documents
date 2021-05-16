@@ -18,8 +18,8 @@ public class DocumentTypeService {
         return documentTypeDao.getAllDocumentTypes();
     }
 
-    public DocumentTypeDto addDocumentType(String name){
-        return documentTypeDao.addNewDocumentType(DocumentTypeDto.builder().name(name).build());
+    public DocumentTypeDto addDocumentType(DocumentTypeDto documentTypeDto){
+        return documentTypeDao.addNewDocumentType(documentTypeDto);
     }
 
 }
