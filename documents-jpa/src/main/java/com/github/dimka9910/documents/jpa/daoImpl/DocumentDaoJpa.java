@@ -1,22 +1,23 @@
 package com.github.dimka9910.documents.jpa.daoImpl;
 
 import com.github.dimka9910.documents.dao.DocumentDao;
-import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
 import com.github.dimka9910.documents.jpa.entity.files.documents.ConcreteDocument;
 import com.github.dimka9910.documents.jpa.entity.files.documents.Document;
 import com.github.dimka9910.documents.jpa.entity.files.documents.FilePath;
-import com.github.dimka9910.documents.jpa.entityParser.files.CatalogueParser;
 import com.github.dimka9910.documents.jpa.entityParser.files.ConcreteDocumentParser;
 import com.github.dimka9910.documents.jpa.entityParser.files.DocumentParser;
 import com.github.dimka9910.documents.jpa.entityParser.files.FilePathParser;
 import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
-import com.github.dimka9910.documents.jpa.repository.CatalogueRepository;
 import com.github.dimka9910.documents.jpa.repository.ConcreteDocumentRepository;
 import com.github.dimka9910.documents.jpa.repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+
+//import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -44,17 +45,33 @@ public class DocumentDaoJpa implements DocumentDao {
         return documentParser.fromList(documentRepository.findAll());
     }
 
+    // Pageable request
+    @Override
+    public Page<DocumentDto> getAllDocuments(Pageable paging, String name, String documentType) {
+        if (name != null && documentType != null){
+            name = "%" + name + "%";   // REGEXP
+            return documentRepository.findAllDocumentsByNameAndType(name, documentType, paging).map(documentParser::EtoDTO);
+        }
+        if (name != null) {
+            name = "%" + name + "%";   // REGEXP
+            return documentRepository.findAllDocumentsByName(name, paging).map(documentParser::EtoDTO);
+        } else if (documentType != null) {
+            return documentRepository.findAllDocumentsByType(documentType.toLowerCase(), paging).map(documentParser::EtoDTO);
+        }
+        return documentRepository.findAllDocuments(paging).map(documentParser::EtoDTO);
+    }
+
+
+
     @Override
     public DocumentDto getDocumentById(Long id) {
-        return documentParser.EtoDTO(documentRepository.findById(id).orElseThrow(IdNotFoundException::new));
+        Document document = documentRepository.findById(id).orElseThrow(IdNotFoundException::new);
+        return documentParser.EtoDTO(document);
     }
 
     public DocumentDto addNewVersion(Document document, ConcreteDocumentDto concreteDocumentDto){
 
         ConcreteDocument concreteDocument = concreteDocumentParser.DTOtoE(concreteDocumentDto);
-
-        em.persist(document);
-        em.persist(concreteDocument);
 
         concreteDocument.setParent(document);
 
@@ -63,15 +80,18 @@ public class DocumentDaoJpa implements DocumentDao {
                 .map(filePathParser::DTOtoE)
                 .collect(Collectors.toList());
 
-        list.forEach(v ->{
-                em.persist(v);
-                v.setParent(concreteDocument);
-        });
-
-        concreteDocument.getFilePathList().addAll(list);
 
         document.getConcreteDocuments().add(concreteDocument);
         document.setTopVersionDocument(concreteDocument);
+
+        em.persist(document);
+        em.persist(concreteDocument);
+
+        concreteDocument.getFilePathList().addAll(list);
+        list.forEach(v ->{
+            v.setParent(concreteDocument);
+            em.persist(v);
+        });
         return documentParser.EtoDTO(document);
     }
 

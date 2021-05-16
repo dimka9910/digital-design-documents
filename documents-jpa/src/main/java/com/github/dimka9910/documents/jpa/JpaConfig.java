@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@PropertySource("classpath:persistence.properties")
+//@PropertySource("classpath:persistence.properties")
 @ComponentScan("com.github.dimka9910.documents.jpa")
 @EnableAutoConfiguration
 public class JpaConfig {

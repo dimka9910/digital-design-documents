@@ -5,9 +5,13 @@ import com.github.dimka9910.documents.dto.user.UserDto;
 import com.github.dimka9910.documents.jpa.entity.user.User;
 import com.github.dimka9910.documents.jpa.entity.user.UserRolesEnum;
 import com.github.dimka9910.documents.jpa.entityParser.user.UserParser;
+import com.github.dimka9910.documents.jpa.exceprions.ConstraintsException;
 import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
 import com.github.dimka9910.documents.jpa.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +21,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @Component
+@Slf4j
 public class UserDaoJpa implements UserDao {
 
     @Autowired
@@ -38,7 +43,13 @@ public class UserDaoJpa implements UserDao {
     public UserDto addNewUser(UserDto userDto) {
         User user = userParser.DTOtoE(userDto);
         user.setRole(UserRolesEnum.USER); // EVERYONE "USER" by default
-        em.persist(user);
+
+        try {
+            em.persist(user);
+        } catch (Exception e){
+            log.error(e.getMessage());
+            throw new ConstraintsException();
+        }
         return userParser.EtoDTO(user);
     }
 
@@ -69,7 +80,13 @@ public class UserDaoJpa implements UserDao {
             user.setLogin(userDto.getLogin());
         if (userDto.getPassword() != null)
             user.setPassword(userDto.getPassword());
-        em.merge(user);
+
+        try {
+            em.merge(user);
+        } catch (Exception e){
+            log.error(e.getMessage());
+            throw new ConstraintsException();
+        }
         return userParser.EtoDTO(user);
     }
 }

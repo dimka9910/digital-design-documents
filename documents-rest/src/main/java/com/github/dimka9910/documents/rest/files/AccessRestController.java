@@ -18,26 +18,16 @@ public class AccessRestController {
     @Autowired
     AccessService accessService;
 
-
-    /**
-     * EXAMPLE
-     *{
-     *   "access": "READ",
-     *   "modify": "DECLINE",
-     *   "fileId": 20,
-     *   "userId": 12
-     * }
-     */
     @PostMapping
     public List<UserDto> grantAccess(@RequestBody @Valid ManageAccessDto manageAccessDto){
         return accessService.modifyFileAccess(manageAccessDto);
     }
 
-    @GetMapping
-    public Map<String, Object> checkAccess(@RequestParam Long fileId){
+    @GetMapping("/{id}")
+    public Map<String, Object> checkAccess(@PathVariable Long id){
         Map<String, Object> rtn = new LinkedHashMap<>();
-        rtn.put("read", accessService.chekRAccess(fileId));
-        rtn.put("read_write", accessService.chekRWAccess(fileId));
+        rtn.put("read", accessService.chekRAccess(id));
+        rtn.put("read_write", accessService.chekRWAccess(id));
         return rtn;
     }
 

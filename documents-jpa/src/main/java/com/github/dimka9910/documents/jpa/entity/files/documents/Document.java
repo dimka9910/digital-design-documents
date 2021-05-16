@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,15 +21,20 @@ import java.util.List;
 public class Document extends FileAbstract {
 
     @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @NotNull
     private DocumentType documentType;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull
     private PriorityEnum priority;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @NotNull
     private ConcreteDocument topVersionDocument;
 
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parent",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.REMOVE)
     private List<ConcreteDocument> concreteDocuments = new ArrayList<>();;
 }
