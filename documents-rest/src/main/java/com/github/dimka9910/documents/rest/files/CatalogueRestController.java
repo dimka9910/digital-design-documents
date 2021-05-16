@@ -30,8 +30,9 @@ public class CatalogueRestController {
     @GetMapping("/open/{id}")
     public List<FileAbstractDto> openCatalogue(@PathVariable Long id,
                                                @RequestParam(required = false) String type,
-                                               @RequestParam(required = false) String name){
-        return catalogueService.getInnerCataloguesAndDocuments(id, type, name);
+                                               @RequestParam(required = false) String name,
+                                               @RequestParam(required = false) String documentType){
+        return catalogueService.getInnerCataloguesAndDocuments(id, type, name, documentType);
     }
 
     @PostMapping(value = "",

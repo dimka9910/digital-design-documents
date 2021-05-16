@@ -33,6 +33,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers("/user/register").permitAll()
                 .antMatchers("/users/grantaccess").hasAuthority("ADMIN")
+                .antMatchers("/globalsearch").hasAuthority("ADMIN")
+                .antMatchers("/globalsearch/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

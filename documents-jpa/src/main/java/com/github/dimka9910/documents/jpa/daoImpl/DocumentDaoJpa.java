@@ -13,6 +13,8 @@ import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
 import com.github.dimka9910.documents.jpa.repository.ConcreteDocumentRepository;
 import com.github.dimka9910.documents.jpa.repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 //import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,24 @@ public class DocumentDaoJpa implements DocumentDao {
     public List<DocumentDto> getAllDocuments() {
         return documentParser.fromList(documentRepository.findAll());
     }
+
+    // Pageable request
+    @Override
+    public Page<DocumentDto> getAllDocuments(Pageable paging, String name, String documentType) {
+        if (name != null && documentType != null){
+            name = "%" + name + "%";   // REGEXP
+            return documentRepository.findAllDocumentsByNameAndType(name, documentType, paging).map(documentParser::EtoDTO);
+        }
+        if (name != null) {
+            name = "%" + name + "%";   // REGEXP
+            return documentRepository.findAllDocumentsByName(name, paging).map(documentParser::EtoDTO);
+        } else if (documentType != null) {
+            return documentRepository.findAllDocumentsByType(documentType.toLowerCase(), paging).map(documentParser::EtoDTO);
+        }
+        return documentRepository.findAllDocuments(paging).map(documentParser::EtoDTO);
+    }
+
+
 
     @Override
     public DocumentDto getDocumentById(Long id) {

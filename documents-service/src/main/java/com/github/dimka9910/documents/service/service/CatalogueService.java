@@ -3,7 +3,11 @@ package com.github.dimka9910.documents.service.service;
 import com.github.dimka9910.documents.dao.CatalogueDao;
 import com.github.dimka9910.documents.dto.files.FileAbstractDto;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
+import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +27,12 @@ public class CatalogueService {
     @Autowired
     private CatalogueDao catalogueDao;
 
+    public Page<CatalogueDto> getAllCatalogues(Integer page, Integer pageSize, String name){
+        Pageable paging = PageRequest.of(page, pageSize);
+        Page<CatalogueDto> pageOfCatalogues = catalogueDao.getAllCatalogues(paging, name);
+        return pageOfCatalogues;
+    }
+
 
     public CatalogueDto getCatalogueById(Long id) {
         CatalogueDto catalogueDto;
@@ -35,7 +45,7 @@ public class CatalogueService {
         }
     }
 
-    public List<FileAbstractDto> getInnerCataloguesAndDocuments(Long id, String type, String name) {
+    public List<FileAbstractDto> getInnerCataloguesAndDocuments(Long id, String type, String name, String documentType) {
         if (!accessService.chekRAccess(id))
             throw new AccessDeniedException("Access error");
 
@@ -45,6 +55,13 @@ public class CatalogueService {
         if (name != null) {
             Pattern pattern = Pattern.compile(".*" + name + ".*", Pattern.CASE_INSENSITIVE);
             list = list.stream().filter(v -> pattern.matcher(v.getName()).matches()).collect(Collectors.toList());
+        }
+        if (documentType != null){
+            list = list.stream()
+                    .filter(v -> v.getTypeOfFile().equals("DOCUMENT"))
+                    .map(v -> (DocumentDto) v)
+                    .filter(v -> v.getDocumentType().equals(documentType.toLowerCase()))
+                    .collect(Collectors.toList());
         }
         return list;
     }
@@ -58,7 +75,7 @@ public class CatalogueService {
     }
 
     public void deleteCatalogueByNameAndParentId(CatalogueDto catalogueDto) {
-        CatalogueDto catalogueDto1 = getInnerCataloguesAndDocuments(catalogueDto.getParentId(), null, null)
+        CatalogueDto catalogueDto1 = getInnerCataloguesAndDocuments(catalogueDto.getParentId(), null, null, null)
                 .stream()
                 .filter(v -> v.getTypeOfFile().equals("CATALOGUE")).map(v -> (CatalogueDto) v)
                 .filter(v -> v.getName().equals(catalogueDto.getName())).
