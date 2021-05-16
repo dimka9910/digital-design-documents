@@ -76,9 +76,12 @@ public class DocumentDaoJpa implements DocumentDao {
         concreteDocument.setParent(document);
 
         // добавление file path
-        List<FilePath> list = concreteDocumentDto.getData().stream()
-                .map(filePathParser::DTOtoE)
-                .collect(Collectors.toList());
+        List<FilePath> list = List.of();
+
+        if (concreteDocumentDto.getData() != null)
+            list = concreteDocumentDto.getData().stream()
+                    .map(filePathParser::DTOtoE)
+                    .collect(Collectors.toList());
 
 
         document.getConcreteDocuments().add(concreteDocument);
