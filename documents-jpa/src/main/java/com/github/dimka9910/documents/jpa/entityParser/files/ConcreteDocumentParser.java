@@ -1,7 +1,6 @@
 package com.github.dimka9910.documents.jpa.entityParser.files;
 
 import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
-import com.github.dimka9910.documents.dto.files.documents.FilePathDto;
 import com.github.dimka9910.documents.jpa.entity.files.documents.ConcreteDocument;
 import com.github.dimka9910.documents.jpa.entity.files.documents.Document;
 import com.github.dimka9910.documents.jpa.entity.user.User;
@@ -15,7 +14,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class ConcreteDocumentParser {

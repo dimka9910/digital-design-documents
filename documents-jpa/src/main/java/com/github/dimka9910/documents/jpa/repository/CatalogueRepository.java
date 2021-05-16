@@ -1,7 +1,6 @@
 package com.github.dimka9910.documents.jpa.repository;
 
 import com.github.dimka9910.documents.jpa.entity.files.catalogues.Catalogue;
-import com.github.dimka9910.documents.jpa.entity.files.documents.Document;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

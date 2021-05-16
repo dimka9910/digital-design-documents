@@ -1,9 +1,6 @@
 package com.github.dimka9910.documents.rest.files;
 
-import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentTypeDto;
-import com.github.dimka9910.documents.jpa.entity.files.documents.DocumentType;
-import com.github.dimka9910.documents.service.service.DocumentService;
 import com.github.dimka9910.documents.service.service.DocumentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

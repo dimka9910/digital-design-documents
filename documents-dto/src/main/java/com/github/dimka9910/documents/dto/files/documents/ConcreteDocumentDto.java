@@ -1,11 +1,12 @@
 package com.github.dimka9910.documents.dto.files.documents;
 
 import com.github.dimka9910.documents.dto.AbstractDto;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
 import java.sql.Timestamp;
 import java.util.List;
 

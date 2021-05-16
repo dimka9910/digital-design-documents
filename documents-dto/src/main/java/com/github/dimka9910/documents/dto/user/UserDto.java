@@ -3,10 +3,8 @@ package com.github.dimka9910.documents.dto.user;
 import com.github.dimka9910.documents.dto.AbstractDto;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
 
-
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Data

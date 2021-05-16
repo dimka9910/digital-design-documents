@@ -1,6 +1,5 @@
 package com.github.dimka9910.documents.service.service;
 
-import com.github.dimka9910.documents.dao.DocumentDao;
 import com.github.dimka9910.documents.dao.DocumentTypeDao;
 import com.github.dimka9910.documents.dto.files.documents.DocumentTypeDto;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -9,9 +9,7 @@ import com.github.dimka9910.documents.jpa.exceprions.ConstraintsException;
 import com.github.dimka9910.documents.jpa.exceprions.IdNotFoundException;
 import com.github.dimka9910.documents.jpa.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
