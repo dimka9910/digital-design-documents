@@ -1,14 +1,15 @@
 package com.github.dimka9910.documents.jpa.entity.files;
 
 import com.github.dimka9910.documents.jpa.entity.files.catalogues.Catalogue;
-import com.github.dimka9910.documents.jpa.entity.files.documents.ConcreteDocument;
 import com.github.dimka9910.documents.jpa.entity.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor

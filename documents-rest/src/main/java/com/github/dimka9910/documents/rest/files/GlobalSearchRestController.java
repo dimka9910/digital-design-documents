@@ -2,7 +2,6 @@ package com.github.dimka9910.documents.rest.files;
 
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
 import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
-import com.github.dimka9910.documents.jpa.entity.files.catalogues.Catalogue;
 import com.github.dimka9910.documents.service.service.CatalogueService;
 import com.github.dimka9910.documents.service.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;

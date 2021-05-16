@@ -1,7 +1,6 @@
 package com.github.dimka9910.documents.integrationtests;
 
 import com.github.dimka9910.documents.app.Application;
-import com.github.dimka9910.documents.dto.user.UserDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

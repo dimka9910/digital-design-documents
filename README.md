@@ -57,6 +57,65 @@
 
 Изменять права доступа на файл может только пользователь удовлетворяющий условию READWRITE access либо имеющий роль ADMIN.
 
+# Описание модулей
+
+### APP
+
+- точка входа
+- тесты
+- application.properties
+- data.sql (данные необходимые при первом запуске приложения)
+
+### DAO
+
+- интерфейсы DAO.
+
+### DTO
+
+- DTO объекты
+
+### JPA
+
+- реализация интерфейсов DAO
+- Entities
+
+### SERVICE
+
+- бизнес логика
+
+### REST
+
+- endpoints
+- spring security
+- swagger
+
+# Описание сущностей.
+
+### FileAbstract
+
+Абстрактный класс, который расширяют сущности Catalogue и Document. Представляет общий набор полей присущий этим сущностям, в частности READ set и READ_WRITE set необходимые для управления правами доступа. Так же служит для полиморфных запросов. Содержит информацию о родительском каталоге, время создания, создателя и сэты.
+
+### Catalogue
+
+Расширяет FileAbstract, содержит имя и своих детей.
+
+### Document
+
+Расширяет FileAbstract, содержит указатель на тип документа, приоритет, указатель на самую свежую версию (ConcreteDocument), и список всех версий (включая самую свежую).
+
+### ConcreteDocument
+
+Представляет собой версию документа. Имеет в себе набор атрибутов изменяемых в документе (название, описание, файлы).  Так же содержит в себе версию (вычисляется автоматически при создании новой версии, начинается с 1 и увеличивается каждый раз на 1), пользователя создавшего новую версию, время создания версии, и указатель на документ которому пренадлежит.
+
+### FilePath
+
+Представляет собой информацию о файле, принадлежащем конкретной версии документа. Содержит в себя имя файла, путь, размер, время создания, ссылка на родительскую конкретную версию документа.
+
+### User
+
+Представляет собой сущность для хранения данных пользователя в базе данных, с базовыми параметрами - login, password, role, а так же с теми, что имплементируются от UserDetails.
+
+
 # REST API DESCRIPTION
 
 ## ENDPOINTS
@@ -99,7 +158,7 @@ RESPONSE EXAMPLE:
 
 > GET `/catalogue/open/{id}?type=...&name=...&documentType=...`
 
-request with to non required parameters
+request with three non required parameters
 
 - `type` - CATALOGUE/DOCUMENT (not case-sensitive)
 - `name` - name of file, or substring of name of file (not case-sensitive)
@@ -736,7 +795,7 @@ This endpoint is accessible only for ADMIN user, because this type of search ign
 
 > GET`globalsearch/documents?page=..&pageSize=..&documentType=...&name=...`
 
-request with to non required parameters
+request with four non required parameters
 
 - `page` - number of page (starts with 0)
 - `pageSize` - size of each page
@@ -871,7 +930,7 @@ RESPONSE EXAMPLE:
 
 > GET`globalsearch/catalogue?page=..&pageSize=..&name=...`
 
-request with to non required parameters
+request with three non required parameters
 
 - `page` - number of page (starts with 0)
 - `pageSize` - size of each page

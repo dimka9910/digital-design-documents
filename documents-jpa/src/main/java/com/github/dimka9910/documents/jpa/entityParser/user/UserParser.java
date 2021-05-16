@@ -1,8 +1,6 @@
 package com.github.dimka9910.documents.jpa.entityParser.user;
 
-import com.github.dimka9910.documents.dto.files.documents.FilePathDto;
 import com.github.dimka9910.documents.dto.user.UserDto;
-import com.github.dimka9910.documents.jpa.entity.files.documents.FilePath;
 import com.github.dimka9910.documents.jpa.entity.user.User;
 import com.github.dimka9910.documents.jpa.entity.user.UserRolesEnum;
 import org.springframework.stereotype.Component;

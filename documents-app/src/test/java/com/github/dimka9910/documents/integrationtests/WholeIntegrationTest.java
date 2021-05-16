@@ -14,14 +14,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -108,7 +105,6 @@ public class WholeIntegrationTest {
                 .postForEntity("/catalogue", newCatalogueDto, CatalogueDto.class);
 
         CatalogueDto catalogueDto = catalogue_response.getBody();
-        System.out.println(catalogue_response.getStatusCode());
 
         Assert.assertNotNull(catalogueDto);
         Assert.assertEquals(rootCatalogue.getId(), catalogueDto.getParentId());
@@ -196,6 +192,92 @@ public class WholeIntegrationTest {
 
     }
 
+    public DocumentDto third_document_creation_in_third_cat_by_third_user(CatalogueDto catalogueDto){
+        String new_doc_name = "third_doc_name";
+
+        ConcreteDocumentDto concreteDocumentDto = ConcreteDocumentDto.builder()
+                .name(new_doc_name)
+                .description("descr")
+                .build();
+
+        DocumentDto documentDto = DocumentDto.builder()
+                .parentId(catalogueDto.getId())
+                .concreteDocument(concreteDocumentDto)
+                .documentType("fax")
+                .priority("LOW")
+                .build();
+
+        ResponseEntity<DocumentDto> document_response = template.withBasicAuth(thirdUserLogin, thirdUserPassword)
+                .postForEntity("/documents", documentDto, DocumentDto.class);
+
+        Assert.assertEquals(document_response.getStatusCode(), HttpStatus.OK);
+
+        documentDto = document_response.getBody();
+
+        Assert.assertNotNull(documentDto);
+        Assert.assertEquals(new_doc_name, documentDto.getName());
+        Assert.assertEquals("LOW", documentDto.getPriority());
+        return documentDto;
+
+    }
+
+    public void read_access_check(DocumentDto documentDto, DocumentDto documentDto2){
+        ResponseEntity<DocumentDto> document_response = template.withBasicAuth(thirdUserLogin, thirdUserPassword)
+                .getForEntity("/documents/{id}", DocumentDto.class, documentDto.getId());
+        Assert.assertEquals(document_response.getStatusCode(), HttpStatus.OK);
+
+        ResponseEntity<DocumentDto> document_response1 = template.withBasicAuth(newUserLogin, newUserPass)
+                .getForEntity("/documents/{id}", DocumentDto.class, documentDto2.getId());
+        Assert.assertEquals(document_response1.getStatusCode(), HttpStatus.OK);
+
+        ResponseEntity<DocumentDto> document_response2 = template.withBasicAuth(thirdUserLogin, thirdUserPassword)
+                .getForEntity("/documents/{id}", DocumentDto.class, documentDto.getId());
+        Assert.assertEquals(document_response2.getStatusCode(), HttpStatus.OK);
+
+        ResponseEntity<DocumentDto> document_response3 = template.withBasicAuth(newUserLogin, newUserPass)
+                .getForEntity("/documents/{id}", DocumentDto.class, documentDto2.getId());
+        Assert.assertEquals(document_response3.getStatusCode(), HttpStatus.OK);
+    }
+
+    public void modify_check(DocumentDto documentDto, DocumentDto documentDto2){
+        String new_doc_name = "mod_doc";
+        ConcreteDocumentDto concreteDocumentDto = ConcreteDocumentDto.builder()
+                .name(new_doc_name)
+                .description("descr")
+                .build();
+
+        concreteDocumentDto.setParentDocumentId(documentDto.getId());
+        ResponseEntity<DocumentDto> document_response = template.withBasicAuth(thirdUserLogin, thirdUserPassword)
+                .postForEntity("/documents/modify", concreteDocumentDto, DocumentDto.class);
+        Assert.assertEquals(document_response.getStatusCode(), HttpStatus.FORBIDDEN);
+
+        ResponseEntity<DocumentDto> document_response1 = template.withBasicAuth(newUserLogin, newUserPass)
+                .postForEntity("/documents/modify", concreteDocumentDto, DocumentDto.class);
+        Assert.assertEquals(document_response1.getStatusCode(), HttpStatus.OK);
+        DocumentDto documentDto3 = document_response1.getBody();
+        Assert.assertEquals(new_doc_name, documentDto3.getName());
+        Assert.assertEquals(2L, (long) documentDto3.getConcreteDocument().getVersion());
+
+    }
+
+    public void modify_catalogue_check(CatalogueDto catalogueDto, CatalogueDto catalogueDto1){
+        ResponseEntity<CatalogueDto> catalogue_response = template.withBasicAuth(thirdUserLogin, thirdUserPassword)
+                .postForEntity("/catalogue/modify", catalogueDto, CatalogueDto.class);
+        Assert.assertEquals(HttpStatus.FORBIDDEN, catalogue_response.getStatusCode());
+
+        ResponseEntity<CatalogueDto> catalogue_response1 = template.withBasicAuth(thirdUserLogin, thirdUserPassword)
+                .postForEntity("/catalogue/modify", catalogueDto1, CatalogueDto.class);
+        Assert.assertEquals(HttpStatus.OK, catalogue_response1.getStatusCode());
+
+        ResponseEntity<CatalogueDto> catalogue_response2 = template.withBasicAuth(newUserLogin, newUserPass)
+                .postForEntity("/catalogue/modify", catalogueDto, CatalogueDto.class);
+        Assert.assertEquals(HttpStatus.OK, catalogue_response2.getStatusCode());
+
+        ResponseEntity<CatalogueDto> catalogue_response3 = template.withBasicAuth(newUserLogin, newUserPass)
+                .postForEntity("/catalogue/modify", catalogueDto1, CatalogueDto.class);
+        Assert.assertEquals(HttpStatus.OK, catalogue_response3.getStatusCode());
+    }
+
 
 
 
@@ -246,6 +328,18 @@ public class WholeIntegrationTest {
 
         // NEW DOC CREATION BY NEW USER IN NEW CATALOGUE
         DocumentDto documentDto = new_document_creation_in_new_cat_by_new_user(new_catalogue_in_root_folder);
+
+        // THIRD DOC BY THIRD USER IN THIRD CATALOGUE
+        DocumentDto documentDto2 = new_document_creation_in_new_cat_by_new_user(thirdCatalogue);
+
+        // ACCESS CHECK
+        read_access_check(documentDto, documentDto2);
+
+        //MODIFY CHECK
+        modify_check(documentDto, documentDto2);
+
+        //modify catalogue check
+        modify_catalogue_check(new_catalogue_in_root_folder, thirdCatalogue);
 
     }
 
