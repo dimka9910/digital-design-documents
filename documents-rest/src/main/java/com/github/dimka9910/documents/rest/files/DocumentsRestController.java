@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -32,14 +33,14 @@ public class DocumentsRestController {
     @PostMapping(value = "",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public DocumentDto addNewDocument(@RequestBody DocumentDto documentDto){
+    public DocumentDto addNewDocument(@RequestBody @Valid DocumentDto documentDto){
         return documentService.saveNewDocument(documentDto, documentDto.getConcreteDocument());
     }
 
     @PostMapping(value = "/modify",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public DocumentDto modifyDocument(@RequestBody ConcreteDocumentDto concreteDocumentDto){
+    public DocumentDto modifyDocument(@RequestBody @Valid ConcreteDocumentDto concreteDocumentDto){
         return documentService.modifyDocument(concreteDocumentDto);
     }
 

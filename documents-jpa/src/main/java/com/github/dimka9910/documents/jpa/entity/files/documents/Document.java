@@ -30,7 +30,6 @@ public class Document extends FileAbstract {
     private PriorityEnum priority;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @NotNull
     private ConcreteDocument topVersionDocument;
 
     @OneToMany(mappedBy = "parent",

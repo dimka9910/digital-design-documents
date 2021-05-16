@@ -2,6 +2,9 @@ package com.github.dimka9910.documents.integrationtests;
 
 import com.github.dimka9910.documents.app.Application;
 import com.github.dimka9910.documents.dto.files.catalogues.CatalogueDto;
+import com.github.dimka9910.documents.dto.files.documents.ConcreteDocumentDto;
+import com.github.dimka9910.documents.dto.files.documents.DocumentDto;
+import com.github.dimka9910.documents.dto.files.documents.FilePathDto;
 import com.github.dimka9910.documents.dto.restdtos.ManageAccessDto;
 import com.github.dimka9910.documents.dto.user.UserDto;
 import org.junit.After;
@@ -157,6 +160,42 @@ public class WholeIntegrationTest {
         return catalogue_response.getBody();
     }
 
+    public DocumentDto new_document_creation_in_new_cat_by_new_user(CatalogueDto catalogueDto){
+        String new_doc_name = "new_doc_name";
+
+        List<FilePathDto> list = List.of(
+                FilePathDto.builder().path("p/a/t/1").build(),
+                FilePathDto.builder().path("p/a/t/2").build(),
+                FilePathDto.builder().path("p/a/t/3").build()
+        );
+
+        ConcreteDocumentDto concreteDocumentDto = ConcreteDocumentDto.builder()
+                .name(new_doc_name)
+                .description("descr")
+                .data(list)
+                .build();
+
+        DocumentDto documentDto = DocumentDto.builder()
+                .parentId(catalogueDto.getId())
+                .concreteDocument(concreteDocumentDto)
+                .documentType("fax")
+                .priority("HIGH")
+                .build();
+
+        ResponseEntity<DocumentDto> document_response = template.withBasicAuth(newUserLogin, newUserPass)
+                .postForEntity("/documents", documentDto, DocumentDto.class);
+
+        Assert.assertEquals(document_response.getStatusCode(), HttpStatus.OK);
+
+        documentDto = document_response.getBody();
+
+        Assert.assertNotNull(documentDto);
+        Assert.assertEquals(new_doc_name, documentDto.getName());
+        Assert.assertEquals("HIGH", documentDto.getPriority());
+        return documentDto;
+
+    }
+
 
 
 
@@ -202,8 +241,11 @@ public class WholeIntegrationTest {
         //CREATION OF NEW FOLDER BY PERMITTED USER
         CatalogueDto thirdCatalogue = creation_of_new_folder_by_new_permitted_user(new_catalogue_in_root_folder);
 
-        //GIVING RIGHTS TO READWRITE NEW_TEST_CATALOGUE TO NEW USER
+        //GIVING RIGHTS TO READWRITE THIRD_CATALOGUE TO THIRD USER
         giving_readwrite_rights_to_user_in_catalogue(thirdUserDto, thirdCatalogue);
+
+        // NEW DOC CREATION BY NEW USER IN NEW CATALOGUE
+        DocumentDto documentDto = new_document_creation_in_new_cat_by_new_user(new_catalogue_in_root_folder);
 
     }
 
