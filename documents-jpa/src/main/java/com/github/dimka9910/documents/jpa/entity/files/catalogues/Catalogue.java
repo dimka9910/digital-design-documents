@@ -28,5 +28,5 @@ public class Catalogue extends FileAbstract {
     @OneToMany(mappedBy = "parentCatalogue",
             fetch = FetchType.LAZY,
             cascade = CascadeType.REMOVE)
-    private List<FileAbstract> concreteDocuments = new ArrayList<>();;
+    private List<FileAbstract> children = new ArrayList<>();;
 }
