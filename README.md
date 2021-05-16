@@ -9,24 +9,24 @@
 5. Получение списка версий документа.
 6. Сохранение каталогов.
 7. Поиск объектов по родителю/названию/типу(каталог/документ). 
-8. paging. //!!!!!!!!!!!!!
+8. paging.
 9. Сохранение настроек(типы документов). 
 10. Фильтрация документов по типу при поиске.
 11. Проверка прав доступа при: получении/поиске объектов, сохранении объектов
 12. Валидация объектов.
-13. Учитывается сортировка по степени важности для документов при поиске. ///!!!
+13. Учитывается сортировка по степени важности для документов при поиске.
 14. Назначение прав доступа на каталоги.
 
 # Запуск приложения
 
-Перед запуском приложения необходимо изменить данные о базе данных в `application.properies` находящимся в app модуле в русурсах. 
+Перед запуском приложения необходимо изменить данные о базе данных в `application.properies` в app модуле в русурсах. 
 
 При первом запуске автоматически добавятся:
 
 - Новый пользователь с параметрами "`login`"  "`password`" и ролью "`ADMIN`"
 - Каталог "`root`"
 
-# Описание схемы ролей и прав доступа.
+# Oписание схемы ролей и прав доступа.
 
 **Admin -** имеет право просматривать и редактировать любой файл, так же только ADMIN может назначить другому пользователю роль ADMIN.
 
@@ -93,12 +93,13 @@ RESPONSE EXAMPLE:
 }
 ```
 
-> GET `/catalogue/open/id?type=...&name=...`
+> GET `/catalogue/open/id?type=...&name=...&documentType=...`
 
 request with to non reqyired parameters
 
-- `Type` - CATALOGUE/DOCUMENT (not case sensitive)
-- `Name` - name of file, or substring of name of file (not case sensitive)
+- `type` - CATALOGUE/DOCUMENT (not case sensitive)
+- `name` - name of file, or substring of name of file (not case sensitive)
+- `documentType` - it shows only documents with specified type.
 
 this request returns list of file and documents which are located in catalogue.
 
@@ -531,7 +532,7 @@ RESPONSE EXAMPLE:
 
 > **DELETE**`/documents/{id}`
 
-- deletes catalogue by id if user has READWRITE access rights.
+- deletes document by id if user has READWRITE access rights.
 
 ---
 
@@ -700,7 +701,7 @@ REQUEST BODY EXAMPLE:
 
 RESPONSE EXAMPLE:
 
-in the response we'll see resule list of users who has access to read or readwrite (depending on what we modified) 
+in the response we'll see list of users who has access to read or readwrite (depending on what we modified) 
 
 ```json
 [
@@ -717,4 +718,209 @@ in the response we'll see resule list of users who has access to read or readwri
     "role": "USER"
   }
 ]
+```
+
+---
+
+---
+
+## `/globalsearch`
+
+This enpoint is accessible only for ADMIN user, because this type of search ignores whole catalogue structure (so access levels too), and search directly in database by specified parameters. 
+
+ 
+
+> GET`globalsearch/documents?page=..&pageSize=..&documentType=...&name=...`
+
+request with to non reqyired parameters
+
+- `page` - number of page (starts with 0)
+- `pageSize` - size of each page
+- `documentType` - document type, case insensitive
+- `name` - name or part of name of document.
+
+this request returns page of last versions of documents filtered by name, document type, and ordered by priority.
+
+RESPONSE EXAMPLE:
+
+```json
+{
+  "content": [
+    {
+      "id": 24,
+      "parentId": 1,
+      "createdTime": "2021-05-13T20:43:10.005+00:00",
+      "userCreatedById": 2,
+      "name": "newDoc_mod2",
+      "typeOfFile": "DOCUMENT",
+      "documentType": "simplydoc",
+      "priority": "LOW",
+      "concreteDocument": {
+        "id": 23,
+        "name": "newDoc_mod2",
+        "description": "descr_mod2",
+        "version": 1,
+        "modifiedTime": "2021-05-13T20:43:10.005+00:00",
+        "userModifiedBy": 2,
+        "parentDocumentId": 24,
+        "data": [
+          {
+            "id": 61,
+            "name": "paaa",
+            "size": 4,
+            "path": "paaa",
+            "parentConcreteDocumentId": null,
+            "createdTime": "2021-05-13T20:43:10.009+00:00"
+          },
+          {
+            "id": 62,
+            "name": "ptthhhhh12",
+            "size": 10,
+            "path": "ptthhhhh12",
+            "parentConcreteDocumentId": null,
+            "createdTime": "2021-05-13T20:43:10.009+00:00"
+          },
+          {
+            "id": 63,
+            "name": "paa3",
+            "size": 4,
+            "path": "paa3",
+            "parentConcreteDocumentId": null,
+            "createdTime": "2021-05-13T20:43:10.009+00:00"
+          }
+        ]
+      }
+    },
+    {
+      "id": 26,
+      "parentId": 1,
+      "createdTime": "2021-05-13T20:43:27.962+00:00",
+      "userCreatedById": 2,
+      "name": "newDoc_mod2",
+      "typeOfFile": "DOCUMENT",
+      "documentType": "simplydoc",
+      "priority": "LOW",
+      "concreteDocument": {
+        "id": 24,
+        "name": "newDoc_mod2",
+        "description": "descr_mod2",
+        "version": 1,
+        "modifiedTime": "2021-05-13T20:43:27.962+00:00",
+        "userModifiedBy": 2,
+        "parentDocumentId": 26,
+        "data": [
+          {
+            "id": 64,
+            "name": "paaa",
+            "size": 4,
+            "path": "paaa",
+            "parentConcreteDocumentId": null,
+            "createdTime": "2021-05-13T20:43:27.965+00:00"
+          },
+          {
+            "id": 65,
+            "name": "ptthhhhh12",
+            "size": 10,
+            "path": "ptthhhhh12",
+            "parentConcreteDocumentId": null,
+            "createdTime": "2021-05-13T20:43:27.965+00:00"
+          },
+          {
+            "id": 66,
+            "name": "paa3",
+            "size": 4,
+            "path": "paa3",
+            "parentConcreteDocumentId": null,
+            "createdTime": "2021-05-13T20:43:27.965+00:00"
+          }
+        ]
+      }
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "unsorted": true,
+      "sorted": false,
+      "empty": true
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalElements": 2,
+  "totalPages": 1,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "unsorted": true,
+    "sorted": false,
+    "empty": true
+  },
+  "first": true,
+  "numberOfElements": 2,
+  "empty": false
+}
+```
+
+> GET`globalsearch/catalogue?page=..&pageSize=..&name=...`
+
+request with to non reqyired parameters
+
+- `page` - number of page (starts with 0)
+- `pageSize` - size of each page
+- `name` - name or part of name of catalogue (case insensitive).
+
+this request returns page of catalogues filtered by name ordered by name.
+
+RESPONSE EXAMPLE:  (`/globalsearch/catalogue?name=root`)
+
+```json
+{
+  "content": [
+    {
+      "id": 63,
+      "parentId": 1,
+      "createdTime": "2021-05-15T18:54:11.625+00:00",
+      "userCreatedById": 1,
+      "name": "children_of_root",
+      "typeOfFile": "CATALOGUE"
+    },
+    {
+      "id": 1,
+      "parentId": null,
+      "createdTime": "2021-05-12T13:47:39.800+00:00",
+      "userCreatedById": null,
+      "name": "root",
+      "typeOfFile": "CATALOGUE"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "unsorted": true,
+      "sorted": false,
+      "empty": true
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalPages": 1,
+  "totalElements": 2,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "unsorted": true,
+    "sorted": false,
+    "empty": true
+  },
+  "first": true,
+  "numberOfElements": 2,
+  "empty": false
+}
 ```
