@@ -110,7 +110,6 @@ public class WholeIntegrationTest {
                 .postForEntity("/catalogue", newCatalogueDto, CatalogueDto.class);
 
         CatalogueDto catalogueDto = catalogue_response.getBody();
-        System.out.println(catalogue_response.getStatusCode());
 
         Assert.assertNotNull(catalogueDto);
         Assert.assertEquals(rootCatalogue.getId(), catalogueDto.getParentId());
